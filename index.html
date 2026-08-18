@@ -1,0 +1,59 @@
+<body>
+  <div class="page-container">
+    <h1>Import Management — Sistem Pendukung</h1>
+    <div id="current-po-banner" class="po-banner"></div>
+    <div id="module-grid" class="module-grid"></div>
+  </div>
+
+  <script src="shared/config.js"></script>
+  <script src="shared/supabase-client.js"></script>
+  <script>
+    const modules = [
+      { name: "Master PO", file: "master-po.html", alwaysActive: true },
+      { name: "PreImport / Input PO", file: "po-preimport.html" },
+      { name: "Proses L/C", file: "lc.html" },
+      { name: "Shipping Document", file: "shipping.html" },
+      { name: "Proses PIB", file: "pib.html" },
+      { name: "Proses Jaspel", file: "jaspel.html" },
+      { name: "PP Barang", file: "pp-barang.html" },
+      { name: "Proses LS", file: "ls.html" },
+      { name: "BAST", file: "bast.html" },
+    ];
+
+    function getSelectedPO() {
+      const raw = sessionStorage.getItem("selectedPO");
+      return raw ? JSON.parse(raw) : null;
+    }
+
+    function render() {
+      const selected = getSelectedPO();
+      const banner = document.getElementById("current-po-banner");
+
+      if (selected) {
+        banner.innerHTML = `PO aktif: <strong>${selected.nomor_po}</strong> — Shipment ${selected.shipment}
+          <button onclick="clearPO()" style="margin-left:10px;">Ganti PO</button>`;
+      } else {
+        banner.innerHTML = `<em>Belum ada PO dipilih. Silakan pilih atau tambah PO lewat Master PO.</em>`;
+      }
+
+      const qs = selected ? `?po=${encodeURIComponent(selected.nomor_po)}&shipment=${selected.shipment}` : "";
+
+      document.getElementById("module-grid").innerHTML = modules.map(m => {
+        const active = m.alwaysActive || selected;
+        if (active) {
+          return `<a href="${m.file}${qs}"><button>${m.name}</button></a>`;
+        } else {
+          return `<button disabled title="Pilih PO terlebih dahulu">${m.name}</button>`;
+        }
+      }).join("");
+    }
+
+    function clearPO() {
+      sessionStorage.removeItem("selectedPO");
+      render();
+    }
+
+    render();
+  </script>
+</body>
+</html>

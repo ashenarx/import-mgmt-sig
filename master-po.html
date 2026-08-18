@@ -1,0 +1,83 @@
+<body>
+  <div class="page-container">
+    <nav style="background:none; padding:0; margin-bottom:16px;">
+      <a href="index.html" style="color:#930c13;">← Kembali ke Home</a>
+    </nav>
+
+    <h1>Master PO</h1>
+
+    <div class="two-column">
+      <div class="table-side">
+        <table>
+          <thead>
+            <tr><th>Nomor PO</th><th>Shipment</th><th>Plant</th><th>Vendor</th><th></th></tr>
+          </thead>
+          <tbody id="po-table-body">
+            <tr><td colspan="5">Memuat data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="form-side">
+        <form id="add-po-form">
+          <h3 style="margin-top:0;">Tambah PO Baru</h3>
+          <label>Nomor PO <input type="text" id="nomor_po" required></label>
+          <label>Shipment <input type="number" id="shipment" required></label>
+          <label>Plant <input type="text" id="plant"></label>
+          <label>Vendor <input type="text" id="vendor"></label>
+          <button type="submit" style="margin-top:14px;">Tambah & Pilih PO Ini</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="shared/config.js"></script>
+  <script src="shared/supabase-client.js"></script>
+  <script>
+    function selectPO(nomor_po, shipment) {
+      sessionStorage.setItem("selectedPO", JSON.stringify({ nomor_po, shipment }));
+      window.location.href = "index.html";
+    }
+
+    async function loadPOs() {
+      const tbody = document.getElementById("po-table-body");
+      try {
+        const data = await sbGet("master_po_data", "?select=*&order=nomor_po");
+        if (data.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5">Belum ada data PO.</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = data.map(po => `
+          <tr>
+            <td>${po.nomor_po}</td>
+            <td>${po.shipment}</td>
+            <td>${po.plant ?? ""}</td>
+            <td>${po.vendor ?? ""}</td>
+            <td><button onclick='selectPO(${JSON.stringify(po.nomor_po)}, ${po.shipment})'>Pilih</button></td>
+          </tr>
+        `).join("");
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5">Gagal memuat data: ${err.message}</td></tr>`;
+      }
+    }
+
+    document.getElementById("add-po-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const newPO = {
+        nomor_po: document.getElementById("nomor_po").value,
+        shipment: parseInt(document.getElementById("shipment").value),
+        plant: document.getElementById("plant").value || null,
+        vendor: document.getElementById("vendor").value || null,
+      };
+      try {
+        await sbInsert("master_po_data", newPO);
+        selectPO(newPO.nomor_po, newPO.shipment);
+      } catch (err) {
+        alert("Gagal menambah PO: " + err.message);
+      }
+    });
+
+    loadPOs();
+  </script>
+</body>
+</html>

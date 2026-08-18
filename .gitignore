@@ -1,0 +1,6 @@
+shared/config.js
+
+.DS_Store
+Thumbs.db
+.vscode/
+*.log

@@ -10,6 +10,12 @@
   <div class="page-container">
     <h1>Import Management SIG</h1>
     <div id="current-po-banner" class="po-banner"></div>
+    <a href="dashboard.html" class="featured-card-link">
+      <button class="featured-card">
+        <span>Data Dashboard & Analytics</span>
+        <span style="color: var(--text-muted); font-weight: 400;">Lihat →</span>
+      </button>
+    </a>
     <div id="module-grid" class="module-grid"></div>
   </div>
 
@@ -26,6 +32,7 @@
       { name: "PP Barang", file: "pp-barang.html" },
       { name: "Proses LS", file: "ls.html" },
       { name: "BAST", file: "bast.html" },
+      { name: "Pengeluaran Barang", file: "pengeluaran.html" }
     ];
 
     function getSelectedPO() {
@@ -38,10 +45,16 @@
       const banner = document.getElementById("current-po-banner");
 
       if (selected) {
-        banner.innerHTML = `PO aktif: <strong>${selected.nomor_po}</strong> — Shipment ${selected.shipment}
-          <button onclick="clearPO()" style="margin-left:10px;">Ganti PO</button>`;
+        banner.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: var(--text-secondary);">PO Aktif:</span>
+            <strong>${selected.nomor_po} </strong> 
+            <span style="color: var(--text-muted);"> | Shipment:</span>
+            <strong> ${selected.shipment}</strong>
+          </div>
+          <button onclick="clearPO()">Ganti PO</button>`;
       } else {
-        banner.innerHTML = `<em>Belum ada PO dipilih. Silakan pilih atau tambah PO lewat Master PO.</em>`;
+        banner.innerHTML = `<em style="color: var(--text-muted);">Belum ada PO dipilih. Silakan pilih atau tambah PO lewat Master PO.</em>`;
       }
 
       const qs = selected ? `?po=${encodeURIComponent(selected.nomor_po)}&shipment=${selected.shipment}` : "";

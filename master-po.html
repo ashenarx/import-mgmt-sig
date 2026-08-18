@@ -16,9 +16,19 @@
 
     <div class="two-column">
       <div class="table-side">
+        <div class="table-header">
+          <div class="search-container">
+            <svg class="search-icon" xmlns="shared\icons\search.svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="search-input" placeholder="Cari Nomor PO atau Vendor...">
+          </div>
+        </div>
+        
         <table>
           <thead>
-            <tr><th>Nomor PO</th><th>Shipment</th><th>Plant</th><th>Vendor</th><th></th></tr>
+            <tr><th>Nomor PO</th><th>Shipment</th><th>Plant</th><th>Vendor</th><th style="text-align: right;">Action</th></tr>
           </thead>
           <tbody id="po-table-body">
             <tr><td colspan="5">Memuat data...</td></tr>
@@ -58,46 +68,112 @@
   <script src="shared/config.js"></script>
   <script src="shared/supabase-client.js"></script>
   <script>
+        let allPOs = [];
+    let isEditMode = false;
+    let currentEditKeys = null; 
+
     function selectPO(nomor_po, shipment) {
       sessionStorage.setItem("selectedPO", JSON.stringify({ nomor_po, shipment }));
       window.location.href = "index.html";
     }
 
+    function renderTable(data) {
+      const tbody = document.getElementById("po-table-body");
+      if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5">Belum ada data PO.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = data.map(po => `
+        <tr>
+          <td>${po.nomor_po}</td>
+          <td>${po.shipment}</td>
+          <td>${po.plant ?? ""}</td>
+          <td>${po.vendor ?? ""}</td>
+          <td style="text-align: right; white-space: nowrap;">
+            <button onclick='selectPO("${po.nomor_po}", ${po.shipment})'>Pilih</button>
+            <button onclick='editPO(${JSON.stringify(po)})' style="margin-left: 4px;">Edit</button>
+            <button onclick='deletePO("${po.nomor_po}", ${po.shipment})' style="margin-left: 4px; border-color: var(--error); color: var(--error);">Hapus</button>
+          </td>
+        </tr>
+      `).join("");
+    }
+
     async function loadPOs() {
       const tbody = document.getElementById("po-table-body");
       try {
-        const data = await sbGet("master_po_data", "?select=*&order=nomor_po");
-        if (data.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="5">Belum ada data PO.</td></tr>`;
-          return;
-        }
-        tbody.innerHTML = data.map(po => `
-          <tr>
-            <td>${po.nomor_po}</td>
-            <td>${po.shipment}</td>
-            <td>${po.plant ?? ""}</td>
-            <td>${po.vendor ?? ""}</td>
-            <td><button onclick='selectPO(${JSON.stringify(po.nomor_po)}, ${po.shipment})'>Pilih</button></td>
-          </tr>
-        `).join("");
+        allPOs = await sbGet("master_po_data", "?select=*&order=nomor_po");
+        renderTable(allPOs);
       } catch (err) {
         tbody.innerHTML = `<tr><td colspan="5">Gagal memuat data: ${err.message}</td></tr>`;
       }
     }
 
+    document.getElementById("search-input").addEventListener("input", (e) => {
+      const term = e.target.value.toLowerCase();
+      const filtered = allPOs.filter(po => 
+        po.nomor_po.toLowerCase().includes(term) || 
+        (po.vendor && po.vendor.toLowerCase().includes(term))
+      );
+      renderTable(filtered);
+    });
+
+    async function deletePO(nomor_po, shipment) {
+      if (!confirm(`Yakin ingin menghapus PO ${nomor_po} (Shipment ${shipment})?`)) return;
+      
+      try {
+        const filter = `nomor_po=eq.${encodeURIComponent(nomor_po)}&shipment=eq.${shipment}`;
+        await sbDelete("master_po_data", filter);
+        showToast("PO berhasil dihapus", "success");
+        loadPOs();
+      } catch (err) {
+        showToast("Gagal menghapus PO: " + err.message, "error");
+      }
+    }
+
+    function editPO(po) {
+      isEditMode = true;
+      currentEditKeys = { nomor_po: po.nomor_po, shipment: po.shipment };
+      
+      document.getElementById("nomor_po").value = po.nomor_po;
+      document.getElementById("shipment").value = po.shipment;
+      document.getElementById("plant").value = po.plant || "";
+      document.getElementById("vendor").value = po.vendor || "";
+      
+      document.querySelector("#add-po-form h3").innerText = "Edit PO";
+      document.querySelector("#add-po-form button[type='submit']").innerText = "Update Data PO";
+    }
+
     document.getElementById("add-po-form").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const newPO = {
+      
+      const formData = {
         nomor_po: document.getElementById("nomor_po").value,
         shipment: parseInt(document.getElementById("shipment").value),
         plant: document.getElementById("plant").value || null,
         vendor: document.getElementById("vendor").value || null,
       };
+
       try {
-        await sbInsert("master_po_data", newPO);
-        selectPO(newPO.nomor_po, newPO.shipment);
+        if (isEditMode) {
+          const filter = `nomor_po=eq.${encodeURIComponent(currentEditKeys.nomor_po)}&shipment=eq.${currentEditKeys.shipment}`;
+          await sbUpdate("master_po_data", formData, filter);
+          showToast("PO berhasil diupdate", "success");
+          
+          isEditMode = false;
+          currentEditKeys = null;
+          document.querySelector("#add-po-form h3").innerText = "Tambah PO Baru";
+          document.querySelector("#add-po-form button[type='submit']").innerText = "Tambah & Pilih PO Ini";
+        } else {
+          await sbInsert("master_po_data", formData);
+          showToast("PO berhasil ditambahkan", "success");
+          selectPO(formData.nomor_po, formData.shipment);
+        }
+        
+        document.getElementById("add-po-form").reset();
+        loadPOs();
       } catch (err) {
-        showToast("Gagal menambah PO: " + err.message, "error");      }
+        showToast(`Gagal ${isEditMode ? 'mengupdate' : 'menambah'} PO: ` + err.message, "error");
+      }
     });
 
     loadPOs();

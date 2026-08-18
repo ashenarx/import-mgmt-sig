@@ -32,7 +32,7 @@ async function sbGet(table, query = "") {
 }
 
 
-// Supabase Insert and Update functions
+// Supabase Insert function
 async function sbInsert(table, data) {
   const res = await fetch(
     `${SUPABASE_URL}/rest/v1/${table}`,
@@ -57,12 +57,29 @@ async function sbUpdate(table, data, filter) {
       method: "PATCH",
       headers: {
         ...supabaseHeaders(),
+        "Content-Type": "application/json",
         "Prefer": "return=representation",
       },
       body: JSON.stringify(data),
     }
   );
   return handleSupabaseResponse(res, "UPDATE", table);
+}
+
+// Supabase Delete function
+async function sbDelete(table, filter) {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/${table}?${filter}`,
+    {
+      method: "DELETE",
+      headers: supabaseHeaders(),
+    }
+  );
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`DELETE ${table} failed: ${res.status} ${text}`);
+  }
+  return true;
 }
 
 // Toast notification function

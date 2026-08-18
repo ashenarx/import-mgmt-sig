@@ -97,8 +97,7 @@
         await sbInsert("master_po_data", newPO);
         selectPO(newPO.nomor_po, newPO.shipment);
       } catch (err) {
-        alert("Gagal menambah PO: " + err.message);
-      }
+        showToast("Gagal menambah PO: " + err.message, "error");      }
     });
 
     loadPOs();

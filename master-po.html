@@ -1,7 +1,15 @@
-<body>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Master PO - Import Management SIG</title>
+  <link rel="preload" href="shared/images/app-page.avif" as="image">
+  <link rel="stylesheet" href="shared/style.css">
+</head>
+
+<body class="app-page">
   <div class="page-container">
-    <nav style="background:none; padding:0; margin-bottom:16px;">
-      <a href="index.html" style="color:#930c13;">← Kembali ke Home</a>
+    <nav class="page-nav">
+      <a href="index.html">← Kembali ke Home</a>
     </nav>
 
     <h1>Master PO</h1>
@@ -20,16 +28,32 @@
 
       <div class="form-side">
         <form id="add-po-form">
-          <h3 style="margin-top:0;">Tambah PO Baru</h3>
-          <label>Nomor PO <input type="text" id="nomor_po" required></label>
-          <label>Shipment <input type="number" id="shipment" required></label>
-          <label>Plant <input type="text" id="plant"></label>
-          <label>Vendor <input type="text" id="vendor"></label>
-          <button type="submit" style="margin-top:14px;">Tambah & Pilih PO Ini</button>
+          <h3>Tambah PO Baru</h3>
+
+          <label>
+            Nomor PO
+            <input type="text" id="nomor_po" required>
+          </label>
+
+          <label>
+            Shipment
+            <input type="number" id="shipment" required>
+          </label>
+
+          <label>
+            Plant
+            <input type="text" id="plant">
+          </label>
+
+          <label>
+            Vendor
+            <input type="text" id="vendor">
+          </label>
+
+          <button type="submit">Tambah & Pilih PO Ini</button>
         </form>
       </div>
     </div>
-  </div>
 
   <script src="shared/config.js"></script>
   <script src="shared/supabase-client.js"></script>

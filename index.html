@@ -10,7 +10,7 @@
   <div class="page-container">
     <h1 style="font-size: 60px;">Import Management SIG ▾</h1>
     <div id="current-po-banner" class="po-banner"></div>
-    <a href="dashboard.html" class="featured-card-link">
+    <a href="pages/dashboard.html" class="featured-card-link">
       <button class="featured-card">
         <span>Data Dashboard & Analytics</span>
         <span style="color: var(--text-muted);">Lihat →</span>
@@ -20,20 +20,20 @@
     <div class="app-watermark">v1.0 | Athaya Shata</div>
   </div>
 
-  <script src="../assets/js/config.js"></script>
-  <script src="../assets/js/supabase-client.js"></script>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/supabase-client.js"></script>
   <script>
     const modules = [
       { name: "Master PO", file: "pages/master-po.html", alwaysActive: true },
       { name: "Pre-Import", file: "pages/preimport.html" },
       { name: "Input PO", file: "pages/inputpo.html" },
-      { name: "Proses L/C", file: "pages/lc.html" },
       { name: "Shipping Document", file: "pages/shipping.html" },
+      { name: "Proses L/C", file: "pages/lc.html" },
       { name: "Proses PIB", file: "pages/pib.html" },
-      { name: "Proses Jaspel", file: "pages/jaspel.html" },
-      { name: "PP Barang", file: "pages/pp-barang.html" },
       { name: "Proses LS", file: "pages/ls.html" },
-      { name: "BAST", file: "pages/bast.html" },
+      { name: "Proses BAST", file: "pages/bast.html" },
+      { name: "Proses Jaspel", file: "pages/jaspel.html" },
+      { name: "Proses PP Barang", file: "pages/pp-barang.html" },
       { name: "Pengeluaran Barang", file: "pages/pengeluaran.html" }
     ];
 

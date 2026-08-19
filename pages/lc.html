@@ -5,12 +5,192 @@
   <link rel="preload" href="../assets/images/app-page.avif" as="image">
   <link rel="stylesheet" href="../assets/css/style.css">
 </head>
+<body class="app-page">
+  <div class="page-container">
+    <nav class="page-nav">
+      <a href="../index.html">← Kembali ke Home</a>
+    </nav>
+    <h1>Proses L/C</h1>
+    <div id="po-context" class="po-banner"></div>
 
-<body>
-  <h1>Proses L/C</h1>
+    <form id="lc-form" class="grid-form">
+      <label>
+        Tanggal Kirim L/C Guidance
+        <input type="date" id="kirim_lc_guidance">
+      </label>
+      <label>
+        Tanggal Vendor Terima L/C Guidance
+        <input type="date" id="vendor_terima_lc_guidance">
+      </label>
 
+      <label>
+        Tanggal Terima L/C Guidance
+        <input type="date" id="terima_lc_guidance">
+      </label>
+      <label>
+        Tanggal Kirim Draft L/C
+        <input type="date" id="kirim_draft_lc">
+      </label>
+
+      <label>
+        Tanggal Terima Draft L/C
+        <input type="date" id="tgl_terima_draft_lc">
+      </label>
+      <label>
+        Tanggal Awal Proses Nego Draft L/C
+        <input type="date" id="tgl_awal_nego_draft_lc">
+      </label>
+
+      <label>
+        Tanggal Nego Draft L/C Selesai
+        <input type="date" id="tgl_nego_draft_lc_selesai">
+      </label>
+      <label>
+        Tanggal Terima Final Draft L/C
+        <input type="date" id="terima_final_draft_lc">
+      </label>
+
+      <label>
+        Tanggal Proses Final L/C
+        <input type="date" id="tgl_proses_final_lc">
+      </label>
+      <label>
+        Tanggal Respon/Revisi Final L/C
+        <input type="date" id="tgl_respon_revisi_final_lc">
+      </label>
+
+      <label>
+        Tanggal Release L/C
+        <input type="date" id="tgl_release_lc">
+      </label>
+      <label>
+        L/C No
+        <input type="text" id="lc_no">
+      </label>
+
+      <label>
+        Nama Bank Penerbit L/C
+        <input type="text" id="nama_bank_penerbit_lc">
+      </label>
+      <label>
+        Status L/C
+        <select id="status_lc">
+          <option value="">-- Pilih --</option>
+          <option value="PROSES">PROSES</option>
+          <option value="DONE">DONE</option>
+        </select>
+      </label>
+
+      <label>
+        Tanggal Permintaan Ammend L/C
+        <input type="date" id="tgl_permintaan_ammend_lc">
+      </label>
+      <label>
+        Tanggal Respon Ammend
+        <input type="date" id="tgl_respon_ammend">
+      </label>
+
+      <label>
+        Tanggal Kirim Ammend L/C ke Bank
+        <input type="date" id="tgl_kirim_ammend_lc_ke_bank">
+      </label>
+      <label>
+        Tanggal Ammend L/C Release
+        <input type="date" id="tgl_ammend_lc_release">
+      </label>
+
+      <label class="grid-span-full">
+        Keterangan Tiap Proses L/C
+        <textarea id="keterangan_tiap_proses_lc" rows="4"></textarea>
+      </label>
+
+      <button type="submit" class="grid-span-full btn-primary">Simpan Proses L/C</button>
+    </form>
+  </div>
+
+  <script src="../assets/js/config.js"></script>
   <script src="../assets/js/supabase-client.js"></script>
   <script>
+    const params = new URLSearchParams(window.location.search);
+    const nomorPO = params.get("po");
+    const shipment = params.get("shipment");
+    let lcExists = false;
+
+    function poFilter() {
+      return `nomor_po=eq.${encodeURIComponent(nomorPO)}&shipment=eq.${shipment}`;
+    }
+
+    async function loadContext() {
+      const ctx = document.getElementById("po-context");
+      if (!nomorPO || !shipment) {
+        ctx.innerHTML = `<em>PO tidak ditemukan di URL. Kembali ke Home dan pilih PO terlebih dahulu.</em>`;
+        return;
+      }
+      try {
+        const master = await sbGet("master_po_data", `?${poFilter()}&select=*`);
+        if (master.length === 0) {
+          ctx.innerHTML = `<em>Data master PO tidak ditemukan.</em>`;
+          return;
+        }
+        const po = master[0];
+        ctx.innerHTML = `
+          <div>
+            <span style="color: var(--text-secondary);">PO:</span> <strong>${po.nomor_po}</strong>
+            <span style="color: var(--text-muted);"> | Shipment:</span> <strong>${po.shipment}</strong>
+            <span style="color: var(--text-muted);"> | Plant:</span> ${po.plant ?? "-"}
+            <span style="color: var(--text-muted);"> | Vendor:</span> ${po.vendor ?? "-"}
+          </div>`;
+      } catch (err) {
+        ctx.innerHTML = `<em>Gagal memuat data: ${err.message}</em>`;
+      }
+    }
+
+    const fields = [
+      "kirim_lc_guidance", "vendor_terima_lc_guidance", "terima_lc_guidance",
+      "kirim_draft_lc", "tgl_terima_draft_lc", "tgl_awal_nego_draft_lc",
+      "tgl_nego_draft_lc_selesai", "terima_final_draft_lc", "tgl_proses_final_lc",
+      "tgl_respon_revisi_final_lc", "tgl_release_lc", "lc_no",
+      "nama_bank_penerbit_lc", "status_lc", "tgl_permintaan_ammend_lc",
+      "tgl_respon_ammend", "tgl_kirim_ammend_lc_ke_bank", "tgl_ammend_lc_release",
+      "keterangan_tiap_proses_lc"
+    ];
+
+    async function loadLC() {
+      try {
+        const data = await sbGet("proses_lc", `?${poFilter()}&select=*`);
+        if (data.length > 0) {
+          lcExists = true;
+          const p = data[0];
+          fields.forEach(f => {
+            document.getElementById(f).value = p[f] ?? "";
+          });
+        }
+      } catch (err) {
+        showToast("Gagal memuat Proses L/C: " + err.message, "error");
+      }
+    }
+
+    document.getElementById("lc-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const data = { nomor_po: nomorPO, shipment: parseInt(shipment) };
+      fields.forEach(f => {
+        data[f] = document.getElementById(f).value || null;
+      });
+      try {
+        if (lcExists) {
+          await sbUpdate("proses_lc", data, poFilter());
+        } else {
+          await sbInsert("proses_lc", data);
+          lcExists = true;
+        }
+        showToast("Proses L/C berhasil disimpan", "success");
+      } catch (err) {
+        showToast(getSupabaseErrorMessage(err, "Gagal menyimpan Proses L/C: " + err.message), "error");
+      }
+    });
+
+    loadContext();
+    loadLC();
   </script>
 </body>
 </html>

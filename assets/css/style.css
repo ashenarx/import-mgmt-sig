@@ -692,6 +692,13 @@ button.btn-sm {
   }
 }
 
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+}
+
 .app-watermark {
   position: fixed;
   bottom: var(--space-md);

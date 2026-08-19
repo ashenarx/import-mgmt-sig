@@ -47,7 +47,7 @@
 
           <label>
             Shipment
-            <input type="number" id="shipment" required>
+            <input type="number" id="shipment" min="0" step="1" required>
           </label>
 
           <label>
@@ -146,6 +146,10 @@
       renderTable(filtered);
     });
 
+    document.getElementById("shipment").addEventListener("input", (e) => {
+      if (e.target.value < 0) e.target.value = 0;
+    });
+
     async function deletePO(nomor_po, shipment) {
       if (!confirm(`Yakin ingin menghapus PO ${nomor_po} (Shipment ${shipment})?`)) return;
       
@@ -155,7 +159,7 @@
         
         const currentSelected = JSON.parse(sessionStorage.getItem("selectedPO"));
         if (currentSelected && currentSelected.nomor_po === nomor_po && currentSelected.shipment === shipment) {
-          sessionStorage.removeItem("selectedPO"); // Clear it from memory
+          sessionStorage.removeItem("selectedPO");
         }
 
         showToast("PO berhasil dihapus", "success");

@@ -22,7 +22,7 @@
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-            <input type="text" id="search-input" placeholder="Cari Nomor PO atau Vendor...">
+            <input type="search" id="search-input" placeholder="Cari Nomor PO atau Vendor...">
           </div>
         </div>
         
@@ -100,11 +100,40 @@
 
     async function loadPOs() {
       const tbody = document.getElementById("po-table-body");
+
       try {
         allPOs = await sbGet("master_po_data", "?select=*&order=nomor_po");
         renderTable(allPOs);
       } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="5">Gagal memuat data: ${err.message}</td></tr>`;
+        console.error(err);
+
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5">
+              <div class="table-error">
+                <div class="table-error-header">
+                  <svg class="table-error-icon" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"
+                    aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                  </svg>
+                  <span>Gagal memuat data PO</span>
+                </div>
+
+                <div class="table-error-message">
+                  Data PO tidak dapat dimuat. Periksa koneksi Anda lalu coba lagi.
+                </div>
+
+                <button type="button" class="btn-ghost btn-sm" onclick="loadPOs()">
+                  Coba Lagi
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
       }
     }
 

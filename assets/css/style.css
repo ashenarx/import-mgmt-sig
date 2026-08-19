@@ -138,12 +138,9 @@ button, input, select, textarea, label, th, td, .po-banner {
 }
 
 .page-container {
-  max-width: 1040px;
-  margin: 0 auto;
+  width: min(100% - 32px, 1200px);
+  margin-inline: auto;
   padding-bottom: var(--space-xl);
-  min-height: auto;
-  display: flex;
-  flex-direction: column;
 }
 
 nav {
@@ -199,6 +196,12 @@ nav a:focus-visible {
   transform: none;
 }
 
+.po-banner.empty {
+  background: transparent;
+  color: var(--text-muted);
+  border-color: var(--border-subtle);
+}
+
 .module-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -227,7 +230,7 @@ nav a:focus-visible {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .module-grid button:hover:not(:disabled) {
@@ -264,7 +267,7 @@ nav a:focus-visible {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
   cursor: pointer;
 }
 
@@ -297,9 +300,7 @@ nav a:focus-visible {
 
 .search-container {
   position: relative;
-  display: inline-block;
-  width: 100%;
-  max-width: 40%;
+  width: min(100%, 300px);
 }
 
 .search-icon {
@@ -312,7 +313,6 @@ nav a:focus-visible {
 }
 
 .table-header input {
-  box-sizing: border-box;
   width: 100%;
   padding: 8px 12px 8px 36px;
   background: var(--surface);
@@ -335,15 +335,29 @@ nav a:focus-visible {
 }
 
 table {
-  border-collapse: collapse;
   width: 100%;
+  border-collapse: collapse;
   text-align: left;
 }
 
 th, td {
   padding: var(--space-md) var(--space-lg);
-  border-bottom: 1px solid var(--border);
+  border-bottom: none;
   font-size: var(--text-ui);
+}
+
+tbody tr {
+  position: relative;
+}
+
+tbody tr:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: var(--space-lg);
+  right: var(--space-lg);
+  bottom: 0;
+  height: 1px;
+  background: var(--border-subtle);
 }
 
 th {
@@ -351,8 +365,8 @@ th {
   color: var(--text-muted);
   font-weight: 500;
   font-size: var(--text-small);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 td {
@@ -363,12 +377,41 @@ tr:last-child td {
   border-bottom: none;
 }
 
-tbody tr {
-  transition: background 0.15s ease;
+td:nth-child(2),
+th:nth-child(2) {
+  font-variant-numeric: tabular-nums;
 }
 
-tbody tr:hover {
-  background: var(--surface-hover);
+.table-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-2xl) var(--space-lg);
+  text-align: center;
+}
+
+.table-error-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  color: var(--error);
+  font-weight: 500;
+}
+
+.table-error-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.table-error-message {
+  color: var(--text-secondary);
+  font-size: var(--text-ui);
+}
+
+.table-error button {
+  margin-top: var(--space-xs);
 }
 
 form {
@@ -404,9 +447,11 @@ form {
 }
 
 form label {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
   margin-top: var(--space-lg);
-  margin-bottom: var(--space-xs);
+  margin-bottom: 0;
   font-size: var(--text-ui);
   font-weight: 500;
   color: var(--text-secondary);
@@ -419,7 +464,6 @@ form label:first-of-type {
 form input,
 form select,
 form textarea {
-  box-sizing: border-box;
   width: 100%;
   padding: 8px var(--space-md);
   background: var(--surface);
@@ -483,7 +527,6 @@ button {
               color 0.15s ease,
               box-shadow 0.15s ease,
               transform 0.15s ease;
-  box-sizing: border-box;
   background: var(--surface);
   color: var(--text);
   border: 1px solid var(--border);
@@ -537,7 +580,6 @@ button.btn-error {
   background: transparent;
   color: var(--error);
   border: 1px solid var(--error);
-  box-shadow: none;
 }
 
 button.btn-error:hover {
@@ -663,11 +705,17 @@ button.btn-sm {
   z-index: 9998;               
 }
 
-@media (max-width: 768px) {
+#search-input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238F8F8F' stroke-width='2' stroke-linecap='round'%3E%3Cline x1='6' y1='6' x2='18' y2='18'/%3E%3Cline x1='18' y1='6' x2='6' y2='18'/%3E%3C/svg%3E") center / 14px 14px no-repeat;
+}
+
+@media (max-width: 900px) {
   .two-column {
     grid-template-columns: 1fr;
-  }
-  .grid-form {
-    grid-template-columns: 1fr; 
   }
 }

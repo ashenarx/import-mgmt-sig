@@ -512,6 +512,19 @@ table button:hover {
   grid-column: 1 / -1; 
 }
 
+.app-watermark {
+  position: fixed;
+  bottom: var(--space-md);
+  right: var(--space-lg);
+  color: var(--text-disabled);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  pointer-events: none;
+  user-select: none;
+  z-index: 9998;
+}
+
 @keyframes slideIn {
   to {
     opacity: 1;

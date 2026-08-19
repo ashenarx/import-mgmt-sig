@@ -60,7 +60,7 @@
             <input type="text" id="vendor">
           </label>
 
-          <button type="submit" style="margin-top: var(--space-lg)">Tambah & Pilih PO Ini</button>
+          <button type="submit" class="grid-span-full btn-primary" style="margin-top: var(--space-lg);">Tambah & Pilih PO Ini</button>
         </form>
       </div>
     </div>
@@ -90,9 +90,9 @@
           <td>${po.plant ?? ""}</td>
           <td>${po.vendor ?? ""}</td>
           <td style="text-align: right; white-space: nowrap;">
-            <button onclick='selectPO("${po.nomor_po}", ${po.shipment})'>Pilih</button>
-            <button onclick='editPO(${JSON.stringify(po)})' style="margin-left: 4px;">Edit</button>
-            <button onclick='deletePO("${po.nomor_po}", ${po.shipment})' style="margin-left: 4px; border-color: var(--error); color: var(--error);">Hapus</button>
+            <button class="btn-ghost btn-sm" onclick='selectPO("${po.nomor_po}", ${po.shipment})'>Pilih</button>
+            <button class="btn-ghost btn-sm" onclick='editPO(${JSON.stringify(po)})'>Edit</button>
+            <button class="btn-error btn-sm" onclick='deletePO("${po.nomor_po}", ${po.shipment})'>Hapus</button>
           </td>
         </tr>
       `).join("");
@@ -123,6 +123,12 @@
       try {
         const filter = `nomor_po=eq.${encodeURIComponent(nomor_po)}&shipment=eq.${shipment}`;
         await sbDelete("master_po_data", filter);
+        
+        const currentSelected = JSON.parse(sessionStorage.getItem("selectedPO"));
+        if (currentSelected && currentSelected.nomor_po === nomor_po && currentSelected.shipment === shipment) {
+          sessionStorage.removeItem("selectedPO"); // Clear it from memory
+        }
+
         showToast("PO berhasil dihapus", "success");
         loadPOs();
       } catch (err) {
@@ -172,7 +178,22 @@
         document.getElementById("add-po-form").reset();
         loadPOs();
       } catch (err) {
-        showToast(`Gagal ${isEditMode ? 'mengupdate' : 'menambah'} PO: ` + err.message, "error");
+        console.error(err);
+
+        if (err.code === "23505") {
+          showToast(
+            `Gagal ${isEditMode ? "mengupdate" : "menambah"} PO: Nomor PO ${formData.nomor_po} (Shipment ${formData.shipment}) sudah terdaftar.`,
+            "error"
+          );
+        } else {
+          showToast(
+            getSupabaseErrorMessage(
+              err,
+              `Gagal ${isEditMode ? "mengupdate" : "menambah"} PO. Silakan coba lagi.`
+            ),
+            "error"
+          );
+        }
       }
     });
 

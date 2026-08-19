@@ -10,11 +10,33 @@ async function handleSupabaseResponse(res, operation, table) {
   const text = await res.text();
 
   if (!res.ok) {
-    throw new Error(
+    let details = null;
+
+    try {
+      details = text ? JSON.parse(text) : null;
+    } catch {}
+
+    const error = new Error(
       `${operation} ${table} failed: ${res.status} ${text}`
     );
+
+    error.status = res.status;
+    error.code = details?.code;
+
+    throw error;
   }
+
   return text ? JSON.parse(text) : null;
+}
+
+
+// Supabase error message
+function getSupabaseErrorMessage(err, fallback) {
+  if (!navigator.onLine) {
+    return "Tidak dapat terhubung ke server. Periksa koneksi internet Anda.";
+  }
+
+  return fallback;
 }
 
 
@@ -83,19 +105,38 @@ async function sbDelete(table, filter) {
 }
 
 // Toast notification function
-function showToast(message, type = 'error') {
-  let container = document.getElementById('toast-container');
+function showToast(message, type = "error") {
+  let container = document.getElementById("toast-container");
+
   if (!container) {
-    container = document.createElement('div');
-    container.id = 'toast-container';
+    container = document.createElement("div");
+    container.id = "toast-container";
     document.body.appendChild(container);
   }
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  toast.innerText = message;
+
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+
+  const messageElement = document.createElement("span");
+  messageElement.textContent = message;
+
+  const closeButton = document.createElement("button");
+  closeButton.className = "toast-close";
+  closeButton.type = "button";
+  closeButton.setAttribute("aria-label", "Tutup");
+  closeButton.innerHTML = "&times;";
+
+  closeButton.addEventListener("click", () => {
+    toast.remove();
+  });
+
+  toast.appendChild(messageElement);
+  toast.appendChild(closeButton);
   container.appendChild(toast);
+
   setTimeout(() => {
-    toast.style.animation = 'fadeOut 0.3s forwards';
+    toast.style.animation = "fadeOut 0.3s forwards";
+
     setTimeout(() => toast.remove(), 300);
   }, 3000);
 }

@@ -2,13 +2,13 @@
 <head>
   <meta charset="UTF-8">
   <title>Import Management SIG</title>
-  <link rel="preload" href="shared/images/home-page.avif" as="image">
-  <link rel="stylesheet" href="shared/style.css">
+  <link rel="preload" href="assets/images/home-page.avif" as="image">
+  <link rel="stylesheet" href="assets/css/style.css">
 </head>
 
 <body class="home-page">
   <div class="page-container">
-    <h1>Import Management SIG</h1>
+    <h1 style="font-size: 60px;">Import Management SIG ▾</h1>
     <div id="current-po-banner" class="po-banner"></div>
     <a href="dashboard.html" class="featured-card-link">
       <button class="featured-card">
@@ -20,21 +20,21 @@
     <div class="app-watermark">v1.0 | Athaya Shata</div>
   </div>
 
-  <script src="shared/config.js"></script>
-  <script src="shared/supabase-client.js"></script>
+  <script src="../assets/js/config.js"></script>
+  <script src="../assets/js/supabase-client.js"></script>
   <script>
     const modules = [
-      { name: "Master PO", file: "master-po.html", alwaysActive: true },
-      { name: "Pre-Import", file: "preimport.html" },
-      { name: "Input PO", file: "inputpo.html" },
-      { name: "Proses L/C", file: "lc.html" },
-      { name: "Shipping Document", file: "shipping.html" },
-      { name: "Proses PIB", file: "pib.html" },
-      { name: "Proses Jaspel", file: "jaspel.html" },
-      { name: "PP Barang", file: "pp-barang.html" },
-      { name: "Proses LS", file: "ls.html" },
-      { name: "BAST", file: "bast.html" },
-      { name: "Pengeluaran Barang", file: "pengeluaran.html" }
+      { name: "Master PO", file: "pages/master-po.html", alwaysActive: true },
+      { name: "Pre-Import", file: "pages/preimport.html" },
+      { name: "Input PO", file: "pages/inputpo.html" },
+      { name: "Proses L/C", file: "pages/lc.html" },
+      { name: "Shipping Document", file: "pages/shipping.html" },
+      { name: "Proses PIB", file: "pages/pib.html" },
+      { name: "Proses Jaspel", file: "pages/jaspel.html" },
+      { name: "PP Barang", file: "pages/pp-barang.html" },
+      { name: "Proses LS", file: "pages/ls.html" },
+      { name: "BAST", file: "pages/bast.html" },
+      { name: "Pengeluaran Barang", file: "pages/pengeluaran.html" }
     ];
 
     function getSelectedPO() {
@@ -56,7 +56,7 @@
           </div>
           <button onclick="clearPO()">Ganti PO</button>`;
       } else {
-        banner.innerHTML = `<em style="color: var(--text-muted);">Belum ada PO dipilih. Silakan pilih atau tambah PO lewat Master PO.</em>`;
+        banner.innerHTML = `<em style="color: var(--text-muted);">Belum ada PO dipilih. Silakan pilih atau tambah PO melalui Master PO.</em>`;
       }
 
       const qs = selected ? `?po=${encodeURIComponent(selected.nomor_po)}&shipment=${selected.shipment}` : "";

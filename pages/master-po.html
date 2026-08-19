@@ -2,14 +2,14 @@
 <head>
   <meta charset="UTF-8">
   <title>Master PO - Import Management SIG</title>
-  <link rel="preload" href="shared/images/app-page.avif" as="image">
-  <link rel="stylesheet" href="shared/style.css">
+  <link rel="preload" href="../assets/images/app-page.avif" as="image">
+  <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 
 <body class="app-page">
   <div class="page-container">
     <nav class="page-nav">
-      <a href="index.html">← Kembali ke Home</a>
+      <a href="../index.html">← Kembali ke Home</a>
     </nav>
 
     <h1>Master PO</h1>
@@ -65,8 +65,8 @@
       </div>
     </div>
 
-  <script src="shared/config.js"></script>
-  <script src="shared/supabase-client.js"></script>
+  <script src="../assets/js/config.js"></script>
+  <script src="../assets/js/supabase-client.js"></script>
   <script>
         let allPOs = [];
     let isEditMode = false;
@@ -74,7 +74,7 @@
 
     function selectPO(nomor_po, shipment) {
       sessionStorage.setItem("selectedPO", JSON.stringify({ nomor_po, shipment }));
-      window.location.href = "index.html";
+      window.location.href = "../index.html";
     }
 
     function renderTable(data) {

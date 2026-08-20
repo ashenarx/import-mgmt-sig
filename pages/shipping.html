@@ -5,13 +5,283 @@
   <link rel="preload" href="../assets/images/app-page.avif" as="image">
   <link rel="stylesheet" href="../assets/css/style.css">
 </head>
-</head>
 
-<body>
-  <h1>Shipping Document</h1>
+<body class="app-page">
+  <div class="page-container">
+    <nav class="page-nav">
+      <a href="../index.html">← Kembali ke Home</a>
+    </nav>
 
+    <h1>Shipping Document</h1>
+    <div id="po-context" class="po-banner"></div>
+
+    <form id="shipping-form" class="grid-form">
+      <label>
+        Jumlah Container
+        <input type="number" id="jumlah_container" min="0" step="1">
+      </label>
+
+      <label>
+        Jenis Container
+        <input type="text" id="jenis_container" placeholder="mis. 20, 40">
+      </label>
+
+      <label>
+        Isi Container
+        <input type="text" id="isi_container">
+      </label>
+
+      <label>
+        Satuan Isi Container
+        <input type="text" id="satuan_isi_cont" placeholder="mis. kg, KGS">
+      </label>
+
+      <label>
+        Nama Kapal
+        <input type="text" id="nama_kapal">
+      </label>
+
+      <label>
+        Invoice No
+        <input type="text" id="inv_no">
+      </label>
+
+      <label>
+        Nilai Invoice
+        <input type="number" step="0.01" id="nilai_inv" min="0">
+      </label>
+
+      <label>
+        Currency Invoice
+        <input type="text" id="currency_inv" placeholder="mis. EUR, USD">
+      </label>
+
+      <label>
+        Nomor BL
+        <input type="text" id="nomor_bl">
+      </label>
+
+      <label>
+        B/L Date
+        <input type="date" id="bl_date">
+      </label>
+
+      <label>
+        Loading Port
+        <input type="text" id="loading_port">
+      </label>
+
+      <label>
+        Discharge Port
+        <input type="text" id="discharge_port">
+      </label>
+
+      <label>
+        Tanggal Konfirmasi Shipping Doc
+        <input type="date" id="konfirmasi_shipping_doc">
+      </label>
+
+      <label>
+        Tanggal Vendor Konfirmasi Draft Ship Doc
+        <input type="date" id="vendor_konfirmasi_draft_ship_doc">
+      </label>
+
+      <label>
+        Tanggal Revisi Draft Ship Doc
+        <input type="date" id="revisi_draft_ship_doc">
+      </label>
+
+      <label>
+        Tanggal Terima Revisi Draft Ship Doc
+        <input type="date" id="terima_revisi_draft_ship_doc">
+      </label>
+
+      <label>
+        Tanggal Final Ship Doc
+        <input type="date" id="final_ship_doc">
+      </label>
+
+      <label>
+        ETA
+        <input type="date" id="eta">
+      </label>
+
+      <label>
+        ETD
+        <input type="date" id="etd">
+      </label>
+      <label>
+        Shipper
+        <input type="text" id="shipper">
+      </label>
+
+      <label>
+        Country of Origin
+        <input type="text" id="country_of_origin">
+      </label>
+
+      <label>
+        Container Type
+        <input type="text" id="cont_type" placeholder="mis. FCL, LCL">
+      </label>
+
+      <label>
+        Transport Mode
+        <input type="text" id="transport_mode">
+      </label>
+
+      <label>
+        Estimasi Invoice (IDR)
+        <input type="number" step="0.01" id="estimasi_inv_idr" min="0">
+      </label>
+
+      <label>
+        Status Shipping Doc
+        <select id="status_shipping_doc">
+          <option value="">-- Pilih --</option>
+          <option value="PROSES">PROSES</option>
+          <option value="DONE">DONE</option>
+        </select>
+      </label>
+
+      <label>
+        Keterangan Tambahan
+        <textarea id="ket_tambahan" rows="1"></textarea>
+      </label>
+
+      <button type="submit" class="grid-span-full btn-primary">Simpan Shipping Document</button>
+    </form>
+  </div>
+
+  <script src="../assets/js/config.js"></script>
   <script src="../assets/js/supabase-client.js"></script>
   <script>
+    const params = new URLSearchParams(window.location.search);
+    const nomorPO = params.get("po");
+    const shipment = params.get("shipment");
+    let shippingExists = false;
+
+    function poFilter() {
+      return `nomor_po=eq.${encodeURIComponent(nomorPO)}&shipment=eq.${shipment}`;
+    }
+
+    async function loadContext() {
+      const ctx = document.getElementById("po-context");
+
+      if (!nomorPO || !shipment) {
+        ctx.innerHTML = `<em>PO tidak ditemukan di URL. Kembali ke Home dan pilih PO terlebih dahulu.</em>`;
+        return;
+      }
+
+      try {
+        const master = await sbGet("master_po_data", `?${poFilter()}&select=*`);
+
+        if (master.length === 0) {
+          ctx.innerHTML = `<em>Data master PO tidak ditemukan.</em>`;
+          return;
+        }
+
+        const po = master[0];
+
+        ctx.innerHTML = `
+          <div>
+            <span style="color: var(--text-secondary);">PO:</span> <strong>${po.nomor_po}</strong>
+            <span style="color: var(--text-muted);"> | Shipment:</span> <strong>${po.shipment}</strong>
+            <span style="color: var(--text-muted);"> | Plant:</span> ${po.plant ?? "-"}
+            <span style="color: var(--text-muted);"> | Vendor:</span> ${po.vendor ?? "-"}
+          </div>`;
+      } catch (err) {
+        ctx.innerHTML = `<em>Gagal memuat data: ${err.message}</em>`;
+      }
+    }
+
+    const fields = [
+      "jumlah_container",
+      "jenis_container",
+      "isi_container",
+      "satuan_isi_cont",
+      "nama_kapal",
+      "inv_no",
+      "nilai_inv",
+      "currency_inv",
+      "nomor_bl",
+      "bl_date",
+      "loading_port",
+      "discharge_port",
+      "konfirmasi_shipping_doc",
+      "vendor_konfirmasi_draft_ship_doc",
+      "revisi_draft_ship_doc",
+      "terima_revisi_draft_ship_doc",
+      "final_ship_doc",
+      "eta",
+      "etd",
+      "shipper",
+      "country_of_origin",
+      "cont_type",
+      "transport_mode",
+      "estimasi_inv_idr",
+      "status_shipping_doc",
+      "ket_tambahan"
+    ];
+
+    async function loadShipping() {
+      try {
+        const data = await sbGet("shipping_document", `?${poFilter()}&select=*`);
+
+        if (data.length > 0) {
+          shippingExists = true;
+          const p = data[0];
+
+          fields.forEach(f => {
+            document.getElementById(f).value = p[f] ?? "";
+          });
+        }
+      } catch (err) {
+        showToast("Gagal memuat Shipping Document: " + err.message, "error");
+      }
+    }
+
+    document.querySelectorAll(
+      "#jumlah_container, #nilai_inv, #estimasi_inv_idr"
+    ).forEach(input => {
+      input.addEventListener("input", (e) => {
+        if (e.target.value < 0) {
+          e.target.value = 0;
+        }
+      });
+    });
+
+    document.getElementById("shipping-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const data = {
+        nomor_po: nomorPO,
+        shipment: parseInt(shipment)
+      };
+
+      fields.forEach(f => {
+        data[f] = document.getElementById(f).value || null;
+      });
+
+      try {
+        if (shippingExists) {
+          await sbUpdate("shipping_document", data, poFilter());
+        } else {
+          await sbInsert("shipping_document", data);
+          shippingExists = true;
+        }
+
+        showToast("Shipping Document berhasil disimpan", "success");
+      } catch (err) {
+        showToast(
+          getSupabaseErrorMessage(err, "Gagal menyimpan: " + err.message),
+          "error"
+        );
+      }
+    });
+
+    loadContext();
+    loadShipping();
   </script>
 </body>
 </html>

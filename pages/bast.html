@@ -5,13 +5,162 @@
   <link rel="preload" href="../assets/images/app-page.avif" as="image">
   <link rel="stylesheet" href="../assets/css/style.css">
 </head>
-
-<body>
+<body class="app-page">
+  <div class="page-container">
+    <nav class="page-nav">
+      <a href="../index.html">← Kembali ke Home</a>
+    </nav>
     <h1>BAST</h1>
+    <div id="po-context" class="po-banner"></div>
 
-    <script src="../assets/js/config.js"></script>
-    <script src="../assets/js/supabase-client.js"></script>
-    <script>
-    </script>
+    <form id="bast-form" class="grid-form">
+      <label>
+        Tanggal Monitoring BAST Release
+        <input type="date" id="monitoring_bast_release">
+      </label>
+
+      <label>
+        Hasil Monitoring BAST Release
+        <select id="hasil_monitoring_bast_release">
+          <option value="">-- Pilih --</option>
+          <option value="RELEASED">RELEASED</option>
+          <option value="BELUM RELEASED">BELUM RELEASED</option>
+        </select>
+      </label>
+
+      <label>
+        Tanggal BAST Release dari Inventory
+        <input type="date" id="bast_release_dari_inventory">
+      </label>
+
+      <label>
+        Tanggal Kirim BAST ke Vendor
+        <input type="date" id="kirim_bast_ke_vendor">
+      </label>
+
+      <label>
+        Tanggal BAST All Signed
+        <input type="date" id="bast_all_signed">
+      </label>
+
+      <label>
+        BAST No
+        <input type="text" id="bast_no">
+      </label>
+
+      <label>
+        Deskripsi Barang
+        <input type="text" id="deskripsi_barang">
+      </label>
+
+      <label>
+        Nilai Barang
+        <input type="number" step="0.01" min="0" id="nilai_barang">
+      </label>
+
+      <label>
+        Currency
+        <input type="text" id="curr" placeholder="mis. EUR, USD">
+      </label>
+
+      <label>
+        Keterangan BAST Tambahan
+        <textarea id="ket_bast_tambahan" rows="1"></textarea>
+      </label>
+
+      <button type="submit" class="grid-span-full btn-primary">Simpan BAST</button>
+    </form>
+  </div>
+
+  <script src="../assets/js/config.js"></script>
+  <script src="../assets/js/supabase-client.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const nomorPO = params.get("po");
+    const shipment = params.get("shipment");
+    let bastExists = false;
+
+    function poFilter() {
+      return `nomor_po=eq.${encodeURIComponent(nomorPO)}&shipment=eq.${shipment}`;
+    }
+
+    async function loadContext() {
+      const ctx = document.getElementById("po-context");
+      if (!nomorPO || !shipment) {
+        ctx.innerHTML = `<em>PO tidak ditemukan di URL. Kembali ke Home dan pilih PO terlebih dahulu.</em>`;
+        return;
+      }
+      try {
+        const master = await sbGet("master_po_data", `?${poFilter()}&select=*`);
+        if (master.length === 0) {
+          ctx.innerHTML = `<em>Data master PO tidak ditemukan.</em>`;
+          return;
+        }
+        const po = master[0];
+        ctx.innerHTML = `
+          <div>
+            <span style="color: var(--text-secondary);">PO:</span> <strong>${po.nomor_po}</strong>
+            <span style="color: var(--text-muted);"> | Shipment:</span> <strong>${po.shipment}</strong>
+            <span style="color: var(--text-muted);"> | Plant:</span> ${po.plant ?? "-"}
+            <span style="color: var(--text-muted);"> | Vendor:</span> ${po.vendor ?? "-"}
+          </div>`;
+      } catch (err) {
+        ctx.innerHTML = `<em>Gagal memuat data: ${err.message}</em>`;
+      }
+    }
+
+    const fields = [
+      "monitoring_bast_release", "hasil_monitoring_bast_release",
+      "bast_release_dari_inventory", "kirim_bast_ke_vendor", "bast_all_signed",
+      "bast_no", "deskripsi_barang", "nilai_barang", "curr", "ket_bast_tambahan"
+    ];
+
+    async function loadBast() {
+      try {
+        const data = await sbGet("proses_bast", `?${poFilter()}&select=*`);
+        if (data.length > 0) {
+          bastExists = true;
+          const p = data[0];
+          fields.forEach(f => {
+            document.getElementById(f).value = p[f] ?? "";
+          });
+        }
+      } catch (err) {
+        showToast("Gagal memuat BAST: " + err.message, "error");
+      }
+    }
+
+    document.querySelectorAll(
+      "#nilai_barang"
+    ).forEach(input => {
+      input.addEventListener("input", (e) => {
+        if (e.target.value < 0) {
+          e.target.value = 0;
+        }
+      });
+    });
+
+    document.getElementById("bast-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const data = { nomor_po: nomorPO, shipment: parseInt(shipment) };
+      fields.forEach(f => {
+        data[f] = document.getElementById(f).value || null;
+      });
+      try {
+        if (bastExists) {
+          await sbUpdate("proses_bast", data, poFilter());
+        } else {
+          await sbInsert("proses_bast", data);
+          bastExists = true;
+        }
+        showToast("BAST berhasil disimpan", "success");
+      } catch (err) {
+        showToast(getSupabaseErrorMessage(err, "Gagal menyimpan: " + err.message), "error");
+      }
+    });
+
+    loadContext();
+    loadBast();
+  </script>
 </body>
 </html>

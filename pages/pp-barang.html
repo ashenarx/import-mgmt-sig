@@ -5,12 +5,220 @@
   <link rel="preload" href="../assets/images/app-page.avif" as="image">
   <link rel="stylesheet" href="../assets/css/style.css">
 </head>
+<body class="app-page">
+  <div class="page-container">
+    <nav class="page-nav">
+      <a href="../index.html">← Kembali ke Home</a>
+    </nav>
+    <h1>PP Barang</h1>
+    <div id="po-context" class="po-banner"></div>
 
-<body>
-  <h1>PP Barang</h1>
+    <form id="ppbrg-form" class="grid-form">
+      <label>
+        Tanggal Create PP Barang
+        <input type="date" id="create_pp_barang">
+      </label>
 
+      <label>
+        Tanggal Aproval PP Barang
+        <input type="date" id="aproval_pp_barang">
+      </label>
+
+      <label>
+        Tanggal Kirim PP Barang
+        <input type="date" id="kirim_pp_barang">
+      </label>
+
+      <label>
+        MIR7 PP Barang
+        <input type="text" id="mir7ppbrg">
+      </label>
+
+      <label>
+        No. PP Barang
+        <input type="text" id="no_pp_barang">
+      </label>
+
+      <label>
+        Nilai PP Barang (Rupiah)
+        <input type="number" step="0.01" min="0" id="nilai_pp_barang">
+      </label>
+
+      <label class="grid-span-full">
+        TOP Payment Description
+        <textarea id="top_payment_description" rows="1"></textarea>
+      </label>
+
+      <label>
+        Start TOP Payment
+        <input type="date" id="start_top_payment">
+      </label>
+
+      <label>
+        Due Date Payment
+        <input type="date" id="due_date_payment">
+      </label>
+
+      <label>
+        Durasi TOP (hari)
+        <input type="number" min="0" id="durasi_top">
+      </label>
+
+      <label>
+        B/L Date
+        <input type="date" id="bl_date">
+      </label>
+
+      <label>
+        Acceptance Doc
+        <input type="date" id="acceptance_doc">
+      </label>
+
+      <label>
+        Bank Kirim Dok. Akseptansi
+        <input type="date" id="bank_kirim_dok_akseptansi">
+      </label>
+
+      <label>
+        Aproval Akseptansi Dok
+        <input type="date" id="aproval_akseptansi_dok">
+      </label>
+
+      <label>
+        BAST All Signed
+        <input type="date" id="bast_all_signed">
+      </label>
+
+      <label>
+        No. Payment by Bendahara
+        <input type="text" id="no_payment_by_bendahara">
+      </label>
+
+      <label>
+        Status Payment
+        <select id="status_payment">
+          <option value="">-- Pilih --</option>
+          <option value="PROSES">PROSES</option>
+          <option value="PAID / DONE">PAID / DONE</option>
+        </select>
+      </label>
+
+      <label>
+        Tanggal PPBRG Return
+        <input type="date" id="ppbrg_return">
+      </label>
+
+      <label>
+        Tanggal Re-Create PPBRG
+        <input type="date" id="re_create_ppbrg">
+      </label>
+
+      <label>
+        Tanggal Re-Aprove PPBRG
+        <input type="date" id="re_aproveppbrg">
+      </label>
+
+      <label>
+        Tanggal Kirim New PPBRG
+        <input type="date" id="kirimnewppbrg">
+      </label>
+
+      <button type="submit" class="grid-span-full btn-primary">Simpan PP Barang</button>
+    </form>
+  </div>
+
+  <script src="../assets/js/config.js"></script>
   <script src="../assets/js/supabase-client.js"></script>
   <script>
+    const params = new URLSearchParams(window.location.search);
+    const nomorPO = params.get("po");
+    const shipment = params.get("shipment");
+    let ppbrgExists = false;
+
+    function poFilter() {
+      return `nomor_po=eq.${encodeURIComponent(nomorPO)}&shipment=eq.${shipment}`;
+    }
+
+    async function loadContext() {
+      const ctx = document.getElementById("po-context");
+      if (!nomorPO || !shipment) {
+        ctx.innerHTML = `<em>PO tidak ditemukan di URL. Kembali ke Home dan pilih PO terlebih dahulu.</em>`;
+        return;
+      }
+      try {
+        const master = await sbGet("master_po_data", `?${poFilter()}&select=*`);
+        if (master.length === 0) {
+          ctx.innerHTML = `<em>Data master PO tidak ditemukan.</em>`;
+          return;
+        }
+        const po = master[0];
+        ctx.innerHTML = `
+          <div>
+            <span style="color: var(--text-secondary);">PO:</span> <strong>${po.nomor_po}</strong>
+            <span style="color: var(--text-muted);"> | Shipment:</span> <strong>${po.shipment}</strong>
+            <span style="color: var(--text-muted);"> | Plant:</span> ${po.plant ?? "-"}
+            <span style="color: var(--text-muted);"> | Vendor:</span> ${po.vendor ?? "-"}
+          </div>`;
+      } catch (err) {
+        ctx.innerHTML = `<em>Gagal memuat data: ${err.message}</em>`;
+      }
+    }
+
+    const fields = [
+      "create_pp_barang", "aproval_pp_barang", "kirim_pp_barang", "mir7ppbrg",
+      "no_pp_barang", "nilai_pp_barang", "top_payment_description",
+      "start_top_payment", "due_date_payment", "durasi_top", "bl_date",
+      "acceptance_doc", "bank_kirim_dok_akseptansi", "aproval_akseptansi_dok",
+      "bast_all_signed", "no_payment_by_bendahara", "status_payment",
+      "ppbrg_return", "re_create_ppbrg", "re_aproveppbrg", "kirimnewppbrg"
+    ];
+
+    async function loadPPBarang() {
+      try {
+        const data = await sbGet("proses_pp_barang", `?${poFilter()}&select=*`);
+        if (data.length > 0) {
+          ppbrgExists = true;
+          const p = data[0];
+          fields.forEach(f => {
+            document.getElementById(f).value = p[f] ?? "";
+          });
+        }
+      } catch (err) {
+        showToast("Gagal memuat PP Barang: " + err.message, "error");
+      }
+    }
+
+    document.querySelectorAll(
+      "#nilai_pp_barang, #durasi_top"
+    ).forEach(input => {
+      input.addEventListener("input", (e) => {
+        if (e.target.value < 0) {
+          e.target.value = 0;
+        }
+      });
+    });
+
+    document.getElementById("ppbrg-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const data = { nomor_po: nomorPO, shipment: parseInt(shipment) };
+      fields.forEach(f => {
+        data[f] = document.getElementById(f).value || null;
+      });
+      try {
+        if (ppbrgExists) {
+          await sbUpdate("proses_pp_barang", data, poFilter());
+        } else {
+          await sbInsert("proses_pp_barang", data);
+          ppbrgExists = true;
+        }
+        showToast("PP Barang berhasil disimpan", "success");
+      } catch (err) {
+        showToast(getSupabaseErrorMessage(err, "Gagal menyimpan: " + err.message), "error");
+      }
+    });
+
+    loadContext();
+    loadPPBarang();
   </script>
 </body>
 </html>

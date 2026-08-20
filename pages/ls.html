@@ -5,13 +5,252 @@
   <link rel="preload" href="../assets/images/app-page.avif" as="image">
   <link rel="stylesheet" href="../assets/css/style.css">
 </head>
-
-<body>
+<body class="app-page">
+  <div class="page-container">
+    <nav class="page-nav">
+      <a href="../index.html">← Kembali ke Home</a>
+    </nav>
     <h1>Proses LS</h1>
+    <div id="po-context" class="po-banner"></div>
 
-    <script src="../assets/js/config.js"></script>
-    <script src="../assets/js/supabase-client.js"></script>
-    <script>
-    </script>
+    <form id="ls-form" class="grid-form">
+      <label>
+        No. PPLS 
+        <input type="text" id="no_ppls">
+      </label>
+      
+      <label>
+        Vendor LS
+        <input type="text" id="vendor_ls">
+      </label>
+
+      <label>
+        Tanggal Input/Kirim VR
+        <input type="date" id="input_kirim_vr">
+      </label>
+
+      <label>
+        Tanggal VR Received
+        <input type="date" id="vr_received">
+      </label>
+
+      <label>
+        Tanggal Draft VO Received
+        <input type="date" id="draft_vo_received">
+      </label>
+
+      <label>
+        Tanggal Confirm Draft VO
+        <input type="date" id="confirm_draft_vo">
+      </label>
+
+      <label>
+        Tanggal VO Publish
+        <input type="date" id="vo_publish">
+      </label>
+
+      <label>
+        Tanggal Draft Ship Doc Received
+        <input type="date" id="draft_ship_doc_received">
+      </label>
+
+      <label>
+        Tanggal Kirim Final Ship Doc
+        <input type="date" id="kirim_final_ship_doc">
+      </label>
+
+      <label>
+        Tanggal Final Ship Doc Received
+        <input type="date" id="final_ship_doc_received">
+      </label>
+
+      <label>
+        Tanggal Confirm Draft LS
+        <input type="date" id="confirm_draft_ls">
+      </label>
+
+      <label>
+        Tanggal Draft LS Received
+        <input type="date" id="draft_ls_received">
+      </label>
+
+      <label>
+        Tanggal LS Release
+        <input type="date" id="ls_release">
+      </label>
+
+      <label>
+        LS No
+        <input type="text" id="ls_no">
+      </label>
+
+      <label>
+        Tanggal Terima Invoice Doc
+        <input type="date" id="terima_invoice_doc">
+      </label>
+
+      <label>
+        No. Invoice LS
+        <input type="text" id="no_inv_ls">
+      </label>
+
+      <label>
+        Tanggal Create PPLS
+        <input type="date" id="create_ppls">
+      </label>
+
+      <label>
+        Tanggal Aproval PPLS
+        <input type="date" id="aproval_ppls">
+      </label>
+
+      <label>
+        Tanggal Kirim PPLS
+        <input type="date" id="kirim_ppls">
+      </label>
+
+      <label>
+        MIR7 PPLS
+        <input type="text" id="mir7_ppls">
+      </label>
+
+      <label>
+        Nilai PPLS
+        <input type="number" step="0.01" min="0" id="nilai_ppls">
+      </label>
+
+      <label>
+        Status PPLS
+        <select id="status_ppls">
+          <option value="">-- Pilih --</option>
+          <option value="PROSES">PROSES</option>
+          <option value="COMPLETED">COMPLETED</option>
+        </select>
+      </label>
+
+      <label>
+        Tanggal PPLS Return
+        <input type="date" id="ppls_return">
+      </label>
+
+      <label>
+        Tanggal Re-Create PPLS
+        <input type="date" id="re_create_ppls">
+      </label>
+
+      <label>
+        Tanggal Re-Aprove PPLS
+        <input type="date" id="re_aprove_ppls">
+      </label>
+
+      <label>
+        Tanggal Kirim New PPLS
+        <input type="date" id="kirim_new_ppls">
+      </label>
+
+      <label>
+        Tanggal Clearing PPLS
+        <input type="date" id="clearing_ppls">
+      </label>
+      
+      <label>
+        No. Clearing
+        <input type="text" id="no_clearing">
+      </label>
+
+      <label class="grid-span-full">
+        Keterangan Tiap Tahapan LS
+        <textarea id="ket_tiap_tahapan_ls" rows="1"></textarea>
+      </label>
+
+      <button type="submit" class="grid-span-full btn-primary">Simpan Proses LS</button>
+    </form>
+  </div>
+
+  <script src="../assets/js/config.js"></script>
+  <script src="../assets/js/supabase-client.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const nomorPO = params.get("po");
+    const shipment = params.get("shipment");
+    let lsExists = false;
+
+    function poFilter() {
+      return `nomor_po=eq.${encodeURIComponent(nomorPO)}&shipment=eq.${shipment}`;
+    }
+
+    async function loadContext() {
+      const ctx = document.getElementById("po-context");
+      if (!nomorPO || !shipment) {
+        ctx.innerHTML = `<em>PO tidak ditemukan di URL. Kembali ke Home dan pilih PO terlebih dahulu.</em>`;
+        return;
+      }
+      try {
+        const master = await sbGet("master_po_data", `?${poFilter()}&select=*`);
+        if (master.length === 0) {
+          ctx.innerHTML = `<em>Data master PO tidak ditemukan.</em>`;
+          return;
+        }
+        const po = master[0];
+        ctx.innerHTML = `
+          <div>
+            <span style="color: var(--text-secondary);">PO:</span> <strong>${po.nomor_po}</strong>
+            <span style="color: var(--text-muted);"> | Shipment:</span> <strong>${po.shipment}</strong>
+            <span style="color: var(--text-muted);"> | Plant:</span> ${po.plant ?? "-"}
+            <span style="color: var(--text-muted);"> | Vendor:</span> ${po.vendor ?? "-"}
+          </div>`;
+      } catch (err) {
+        ctx.innerHTML = `<em>Gagal memuat data: ${err.message}</em>`;
+      }
+    }
+
+    const fields = [
+      "no_ppls", "vendor_ls", "input_kirim_vr", "vr_received", "draft_vo_received",
+      "confirm_draft_vo", "vo_publish", "draft_ship_doc_received",
+      "kirim_final_ship_doc", "final_ship_doc_received", "confirm_draft_ls",
+      "draft_ls_received", "ls_release", "ls_no", "terima_invoice_doc",
+      "no_inv_ls", "create_ppls", "aproval_ppls", "kirim_ppls", "mir7_ppls",
+      "nilai_ppls", "status_ppls", "ppls_return", "re_create_ppls",
+      "re_aprove_ppls", "kirim_new_ppls", "clearing_ppls", "no_clearing",
+      "ket_tiap_tahapan_ls"
+    ];
+
+    async function loadLS() {
+      try {
+        const data = await sbGet("proses_ls", `?${poFilter()}&select=*`);
+        if (data.length > 0) {
+          lsExists = true;
+          const p = data[0];
+          fields.forEach(f => {
+            document.getElementById(f).value = p[f] ?? "";
+          });
+        }
+      } catch (err) {
+        showToast("Gagal memuat Proses LS: " + err.message, "error");
+      }
+    }
+
+    document.getElementById("ls-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const data = { nomor_po: nomorPO, shipment: parseInt(shipment) };
+      fields.forEach(f => {
+        data[f] = document.getElementById(f).value || null;
+      });
+      try {
+        if (lsExists) {
+          await sbUpdate("proses_ls", data, poFilter());
+        } else {
+          await sbInsert("proses_ls", data);
+          lsExists = true;
+        }
+        showToast("Proses LS berhasil disimpan", "success");
+      } catch (err) {
+        showToast(getSupabaseErrorMessage(err, "Gagal menyimpan: " + err.message), "error");
+      }
+    });
+
+    loadContext();
+    loadLS();
+  </script>
 </body>
 </html>

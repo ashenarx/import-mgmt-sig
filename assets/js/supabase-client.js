@@ -140,3 +140,11 @@ function showToast(message, type = "error") {
     setTimeout(() => toast.remove(), 300);
   }, 3000);
 }
+
+// Toggle placeholder visibility for input fields
+document.querySelectorAll('input[type="date"]').forEach(input => {
+  const update = () => input.classList.toggle("has-value", !!input.value);
+  input.addEventListener("input", update);
+  input.addEventListener("change", update);
+  update();
+});

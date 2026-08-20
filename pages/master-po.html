@@ -26,14 +26,22 @@
           </div>
         </div>
         
-        <table>
-          <thead>
-            <tr><th>Nomor PO</th><th>Shipment</th><th>Plant</th><th>Vendor</th><th style="text-align: right;">Action</th></tr>
-          </thead>
-          <tbody id="po-table-body">
-            <tr><td colspan="5">Memuat data...</td></tr>
-          </tbody>
-        </table>
+        <div style="overflow-x: auto;">
+            <table>
+            <thead>
+              <tr>
+                <th data-sort="nomor_po" onclick="sortTable('nomor_po')" style="cursor: pointer; user-select: none;">Nomor PO<span class="sort-icon"></span></th>
+                <th data-sort="shipment" onclick="sortTable('shipment')" style="cursor: pointer; user-select: none;">Shipment<span class="sort-icon"></span></th>
+                <th data-sort="plant" onclick="sortTable('plant')" style="cursor: pointer; user-select: none;">Plant<span class="sort-icon"></span></th>
+                <th data-sort="vendor" onclick="sortTable('vendor')" style="cursor: pointer; user-select: none;">Vendor<span class="sort-icon"></span></th>
+                <th style="text-align: right; width: 1%; white-space: nowrap;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="po-table-body">
+              <tr><td colspan="5">Memuat data...</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div class="form-side">
@@ -96,6 +104,41 @@
           </td>
         </tr>
       `).join("");
+    }
+
+    let sortCol = '';
+    let sortAsc = true;
+
+    function sortTable(column) {
+      if (sortCol === column) {
+        sortAsc = !sortAsc;
+      } else {
+        sortCol = column;
+        sortAsc = true;
+      }
+
+      document.querySelectorAll("th[data-sort]").forEach(th => {
+        const icon = th.querySelector(".sort-icon");
+        if (th.getAttribute("data-sort") === sortCol) {
+          icon.innerText = sortAsc ? "\u00A0↑" : "\u00A0↓"; 
+        } else {
+          icon.innerText = ""; 
+        }
+      });
+
+      allPOs.sort((a, b) => {
+        let valA = a[column] === null ? "" : a[column];
+        let valB = b[column] === null ? "" : b[column];
+
+        if (typeof valA === "string") valA = valA.toLowerCase();
+        if (typeof valB === "string") valB = valB.toLowerCase();
+
+        if (valA < valB) return sortAsc ? -1 : 1;
+        if (valA > valB) return sortAsc ? 1 : -1;
+        return 0;
+      });
+
+      document.getElementById("search-input").dispatchEvent(new Event("input"));
     }
 
     async function loadPOs() {

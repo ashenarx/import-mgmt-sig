@@ -1,172 +1,175 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Input PO - Import Management SIG</title>
-    <link rel="preload" href="../assets/images/app-page.avif" as="image">
-    <link rel="stylesheet" href="../assets/css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Input PO - Import Management SIG</title>
+  <link rel="preload" href="../assets/images/app-page.avif" as="image">
+  <link rel="stylesheet" href="../assets/css/style.css">
 </head>
+
 <body class="app-page">
-    <div class="page-container">
+  <div class="page-container">
     <nav class="page-nav">
-        <a href="../index.html">← Kembali ke Home</a>
+      <a href="../index.html">← Kembali ke Home</a>
     </nav>
     <h1>Input PO</h1>
     <div id="po-context" class="po-banner"></div>
 
     <form id="inputpo-form" class="grid-form">
-        <label>
-            Doc Date
-            <input type="date" id="doc_date">
-        </label>
-        <label>
-            Delivery Date
-            <input type="date" id="delivery_date">
-        </label>
+      <label>
+        Doc Date
+        <input type="date" id="doc_date">
+      </label>
+      <label>
+        Delivery Date
+        <input type="date" id="delivery_date">
+      </label>
 
-        <label>
-            Deskripsi
-            <input type="text" id="deskripsi">
-        </label>
-        <label>
-            Jenis Barang
-            <input type="text" id="jenis_barang">
-        </label>
+      <label>
+        Deskripsi
+        <input type="text" id="deskripsi">
+      </label>
+      <label>
+        Jenis Barang
+        <input type="text" id="jenis_barang">
+      </label>
 
-        <label>
-            Incoterm
-            <input type="text" id="incoterm" placeholder="mis. CFR, DAP, FOB">
-        </label>
-        <label>
-            Jenis Pembayaran (TOP)
-            <input type="text" id="jenis_pembayaran" placeholder="mis. TT, L/C">
-        </label>
+      <label>
+        Incoterm
+        <input type="text" id="incoterm" placeholder="mis. CFR, DAP, FOB">
+      </label>
+      <label>
+        Jenis Pembayaran (TOP)
+        <input type="text" id="jenis_pembayaran" placeholder="mis. TT, L/C">
+      </label>
 
-        <label>
-            LSD Date
-            <input type="date" id="lsd_date">
-        </label>
-        <label>
-            Free Time Demurrage &amp; Detention (hari)
-            <input type="number" id="free_time_dd" min="0" step="1">
-        </label>
+      <label>
+        LSD Date
+        <input type="date" id="lsd_date">
+      </label>
+      <label>
+        Free Time Demurrage &amp; Detention (hari)
+        <input type="number" id="free_time_dd" min="0" step="1">
+      </label>
 
-        <label>
-            Nilai PO (Valas)
-            <input type="number" step="0.01" id="nilai_po" min="0">
-        </label>
-        <label>
-            Currency
-            <input type="text" id="currency" placeholder="mis. USD, EUR">
-        </label>
+      <label>
+        Nilai PO (Valas)
+        <input type="number" step="0.01" id="nilai_po" min="0">
+      </label>
+      <label>
+        Currency
+        <input type="text" id="currency" placeholder="mis. USD, EUR">
+      </label>
 
-        <label>
-            DTHC Included?
-            <select id="dthc_included">
-            <option value="">-- Pilih --</option>
-            <option value="IYA">IYA</option>
-            <option value="TIDAK">TIDAK</option>
-            </select>
-        </label>
-        <label>
-            Satuan Order
-            <input type="text" id="satuan_order" placeholder="mis. KG, KGS">
-        </label>
+      <label>
+        DTHC Included?
+        <select id="dthc_included">
+          <option value="">-- Pilih --</option>
+          <option value="IYA">IYA</option>
+          <option value="TIDAK">TIDAK</option>
+        </select>
+      </label>
+      <label>
+        Satuan Order
+        <input type="text" id="satuan_order" placeholder="mis. KG, KGS">
+      </label>
 
-        <label>
-            Qty Order
-            <input type="number" step="0.01" id="qty_order" min="0">
-        </label>
-        <label>
-            Qty Delivered
-            <input type="number" step="0.01" id="qty_delivered" min="0">
-        </label>
+      <label>
+        Qty Order
+        <input type="number" step="0.01" id="qty_order" min="0">
+      </label>
+      <label>
+        Qty Delivered
+        <input type="number" step="0.01" id="qty_delivered" min="0">
+      </label>
 
-        <label>
-            Still to be Deliver
-            <input type="number" step="0.01" id="still_to_be_deliver" min="0">
-        </label>
-        <label>
-            Status PO
-            <input type="text" id="status_po" placeholder="mis. PO IMPOR CLOSE">
-        </label>
+      <label>
+        Still to be Deliver
+        <input type="number" step="0.01" id="still_to_be_deliver" min="0">
+      </label>
+      <label>
+        Status PO
+        <input type="text" id="status_po" placeholder="mis. PO IMPOR CLOSE">
+      </label>
 
-        <label class="grid-span-full">
-            Keterangan Tambahan
-            <textarea id="ket_tambahan" rows="1" ></textarea>
-        </label>
+      <label class="grid-span-full">
+        Keterangan Tambahan
+        <textarea id="ket_tambahan" rows="1"></textarea>
+      </label>
 
-        <button type="submit" class="grid-span-full btn-primary">Simpan Input PO</button>
+      <button type="submit" class="grid-span-full btn-primary">Simpan Input PO</button>
     </form>
 
-    </div>
+  </div>
 
-    <script src="../assets/js/config.js"></script>
-    <script src="../assets/js/supabase-client.js"></script>
-    <script src="../assets/js/page-utils.js"></script>
-    <script>
-        let recordId = null;
+  <script src="../assets/js/config.js"></script>
+  <script src="../assets/js/supabase-client.js"></script>
+  <script src="../assets/js/page-utils.js"></script>
+  <script>
+    let recordId = null;
 
-        const fields = [
-          "doc_date", "delivery_date", "deskripsi", "jenis_barang",
-          "incoterm", "jenis_pembayaran", "lsd_date", "free_time_dd",
-          "nilai_po", "currency", "dthc_included", "satuan_order",
-          "qty_order", "qty_delivered", "still_to_be_deliver",
-          "status_po", "ket_tambahan"
-        ];
+    const fields = [
+      "doc_date", "delivery_date", "deskripsi", "jenis_barang",
+      "incoterm", "jenis_pembayaran", "lsd_date", "free_time_dd",
+      "nilai_po", "currency", "dthc_included", "satuan_order",
+      "qty_order", "qty_delivered", "still_to_be_deliver",
+      "status_po", "ket_tambahan"
+    ];
 
-        async function loadInputPO() {
-          try {
-            const data = await sbGet("input_po", `?${poFilter()}&select=*&limit=1`);
-            if (data.length > 0) {
-              recordId = data[0].id;
-              const p = data[0];
-              fields.forEach(f => {
-                document.getElementById(f).value = p[f] ?? "";
-              });
-            }
-          } catch (err) {
-            showToast("Gagal memuat Input PO: " + err.message, "error");
+    async function loadInputPO() {
+      try {
+        const data = await sbGet("input_po", `?${poFilter()}&select=*&limit=1`);
+        if (data.length > 0) {
+          recordId = data[0].id;
+          const p = data[0];
+          fields.forEach(f => {
+            document.getElementById(f).value = p[f] ?? "";
+          });
+        }
+      } catch (err) {
+        showToast("Gagal memuat Input PO: " + err.message, "error");
+      }
+    }
+
+    document.getElementById("inputpo-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const data = {
+        master_id: masterId ? parseInt(masterId) : null,
+        nomor_po: nomorPO,
+        shipment: parseInt(shipment)
+      };
+      fields.forEach(f => {
+        data[f] = document.getElementById(f).value || null;
+      });
+      // Use !== null so that a value of "0" is correctly parsed as 0, not dropped
+      if (data.free_time_dd !== null) data.free_time_dd = parseInt(data.free_time_dd);
+      if (data.nilai_po !== null) data.nilai_po = parseFloat(data.nilai_po);
+      if (data.qty_order !== null) data.qty_order = parseFloat(data.qty_order);
+      if (data.qty_delivered !== null) data.qty_delivered = parseFloat(data.qty_delivered);
+      if (data.still_to_be_deliver !== null) data.still_to_be_deliver = parseFloat(data.still_to_be_deliver);
+      setSubmitting(e.target, true);
+      try {
+        if (recordId) {
+          await sbUpdate("input_po", data, `id=eq.${recordId}`);
+        } else {
+          const inserted = await sbInsert("input_po", data);
+          if (inserted && inserted.length > 0) {
+            recordId = inserted[0].id;
           }
         }
+        showToast("Input PO berhasil disimpan", "success");
+      } catch (err) {
+        showToast("Gagal menyimpan: " + err.message, "error");
+      } finally {
+        setSubmitting(e.target, false);
+      }
+    });
 
-        document.getElementById("inputpo-form").addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const data = {
-            master_id: masterId ? parseInt(masterId) : null,
-            nomor_po: nomorPO,
-            shipment: parseInt(shipment)
-          };
-          fields.forEach(f => {
-            data[f] = document.getElementById(f).value || null;
-          });
-          // Use !== null so that a value of "0" is correctly parsed as 0, not dropped
-          if (data.free_time_dd !== null)        data.free_time_dd        = parseInt(data.free_time_dd);
-          if (data.nilai_po !== null)             data.nilai_po             = parseFloat(data.nilai_po);
-          if (data.qty_order !== null)            data.qty_order            = parseFloat(data.qty_order);
-          if (data.qty_delivered !== null)        data.qty_delivered        = parseFloat(data.qty_delivered);
-          if (data.still_to_be_deliver !== null)  data.still_to_be_deliver  = parseFloat(data.still_to_be_deliver);
-          setSubmitting(e.target, true);
-          try {
-            if (recordId) {
-              await sbUpdate("input_po", data, `id=eq.${recordId}`);
-            } else {
-              const inserted = await sbInsert("input_po", data);
-              if (inserted && inserted.length > 0) {
-                recordId = inserted[0].id;
-              }
-            }
-            showToast("Input PO berhasil disimpan", "success");
-          } catch (err) {
-            showToast("Gagal menyimpan: " + err.message, "error");
-          } finally {
-            setSubmitting(e.target, false);
-          }
-        });
-
-        loadContext();
-        loadInputPO();
-    </script>
+    loadContext();
+    loadInputPO();
+  </script>
 </body>
+
 </html>

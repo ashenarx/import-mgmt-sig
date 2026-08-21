@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -20,7 +21,8 @@
       <div class="table-side">
         <div class="table-header">
           <div class="search-container">
-            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
@@ -29,18 +31,24 @@
         </div>
 
         <div style="overflow-x: auto;">
-            <table>
+          <table>
             <thead>
               <tr>
-                <th data-sort="nomor_po" onclick="sortTable('nomor_po')" style="cursor: pointer; user-select: none;">Nomor PO<span class="sort-icon"></span></th>
-                <th data-sort="shipment" onclick="sortTable('shipment')" style="cursor: pointer; user-select: none;">Shipment<span class="sort-icon"></span></th>
-                <th data-sort="plant" onclick="sortTable('plant')" style="cursor: pointer; user-select: none;">Plant<span class="sort-icon"></span></th>
-                <th data-sort="vendor" onclick="sortTable('vendor')" style="cursor: pointer; user-select: none;">Vendor<span class="sort-icon"></span></th>
+                <th data-sort="nomor_po" onclick="sortTable('nomor_po')" style="cursor: pointer; user-select: none;">
+                  Nomor PO<span class="sort-icon"></span></th>
+                <th data-sort="shipment" onclick="sortTable('shipment')" style="cursor: pointer; user-select: none;">
+                  Shipment<span class="sort-icon"></span></th>
+                <th data-sort="plant" onclick="sortTable('plant')" style="cursor: pointer; user-select: none;">
+                  Plant<span class="sort-icon"></span></th>
+                <th data-sort="vendor" onclick="sortTable('vendor')" style="cursor: pointer; user-select: none;">
+                  Vendor<span class="sort-icon"></span></th>
                 <th style="text-align: right; width: 1%; white-space: nowrap;">Actions</th>
               </tr>
             </thead>
             <tbody id="po-table-body">
-              <tr><td colspan="5">Memuat data...</td></tr>
+              <tr>
+                <td colspan="5">Memuat data...</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -70,40 +78,41 @@
             <input type="text" id="vendor">
           </label>
 
-          <button type="submit" class="grid-span-full btn-primary" style="margin-top: var(--space-lg);">Tambah &amp; Pilih PO Ini</button>
+          <button type="submit" class="grid-span-full btn-primary" style="margin-top: var(--space-lg);">Tambah &amp;
+            Pilih PO Ini</button>
         </form>
       </div>
     </div>
 
-  <script src="../assets/js/config.js"></script>
-  <script src="../assets/js/supabase-client.js"></script>
-  <script src="../assets/js/page-utils.js"></script>
-  <script>
-    let allPOs = [];
-    let renderedData = []; // tracks the currently-displayed slice (filtered/sorted)
-    let isEditMode = false;
-    let currentEditKeys = null;
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/supabase-client.js"></script>
+    <script src="../assets/js/page-utils.js"></script>
+    <script>
+      let allPOs = [];
+      let renderedData = []; // tracks the currently-displayed slice (filtered/sorted)
+      let isEditMode = false;
+      let currentEditKeys = null;
 
-    function selectPO(po) {
-      sessionStorage.setItem("selectedPO", JSON.stringify({
-        id: po.id,
-        nomor_po: po.nomor_po,
-        shipment: po.shipment,
-        plant: po.plant,
-        vendor: po.vendor,
-        deskripsi_barang: po.deskripsi_barang
-      }));
-      window.location.href = "../index.html";
-    }
-
-    function renderTable(data) {
-      renderedData = data;
-      const tbody = document.getElementById("po-table-body");
-      if (data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5">Belum ada data PO.</td></tr>`;
-        return;
+      function selectPO(po) {
+        sessionStorage.setItem("selectedPO", JSON.stringify({
+          id: po.id,
+          nomor_po: po.nomor_po,
+          shipment: po.shipment,
+          plant: po.plant,
+          vendor: po.vendor,
+          deskripsi_barang: po.deskripsi_barang
+        }));
+        window.location.href = "../index.html";
       }
-      tbody.innerHTML = data.map((po, i) => `
+
+      function renderTable(data) {
+        renderedData = data;
+        const tbody = document.getElementById("po-table-body");
+        if (data.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5">Belum ada data PO.</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = data.map((po, i) => `
         <tr>
           <td>${escapeHtml(po.nomor_po)}</td>
           <td>${po.shipment}</td>
@@ -116,59 +125,59 @@
           </td>
         </tr>
       `).join("");
-    }
-
-    // Single delegated listener — no inline onclick needed
-    document.getElementById("po-table-body").addEventListener("click", (e) => {
-      const btn = e.target.closest("button[data-action]");
-      if (!btn) return;
-      const po = renderedData[parseInt(btn.dataset.idx)];
-      if (!po) return;
-      const action = btn.dataset.action;
-      if (action === "select") selectPO(po);
-      if (action === "edit")   editPO(po);
-      if (action === "delete") deletePO(po);
-    });
-
-    let sortCol = "";
-    let sortAsc = true;
-
-    function sortTable(column) {
-      if (sortCol === column) {
-        sortAsc = !sortAsc;
-      } else {
-        sortCol = column;
-        sortAsc = true;
       }
 
-      document.querySelectorAll("th[data-sort]").forEach(th => {
-        const icon = th.querySelector(".sort-icon");
-        icon.innerText = th.getAttribute("data-sort") === sortCol
-          ? (sortAsc ? "\u00A0↑" : "\u00A0↓")
-          : "";
+      // Single delegated listener — no inline onclick needed
+      document.getElementById("po-table-body").addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-action]");
+        if (!btn) return;
+        const po = renderedData[parseInt(btn.dataset.idx)];
+        if (!po) return;
+        const action = btn.dataset.action;
+        if (action === "select") selectPO(po);
+        if (action === "edit") editPO(po);
+        if (action === "delete") deletePO(po);
       });
 
-      allPOs.sort((a, b) => {
-        let valA = a[column] === null ? "" : a[column];
-        let valB = b[column] === null ? "" : b[column];
-        if (typeof valA === "string") valA = valA.toLowerCase();
-        if (typeof valB === "string") valB = valB.toLowerCase();
-        if (valA < valB) return sortAsc ? -1 : 1;
-        if (valA > valB) return sortAsc ? 1 : -1;
-        return 0;
-      });
+      let sortCol = "";
+      let sortAsc = true;
 
-      document.getElementById("search-input").dispatchEvent(new Event("input"));
-    }
+      function sortTable(column) {
+        if (sortCol === column) {
+          sortAsc = !sortAsc;
+        } else {
+          sortCol = column;
+          sortAsc = true;
+        }
 
-    async function loadPOs() {
-      const tbody = document.getElementById("po-table-body");
-      try {
-        allPOs = await sbGet("master_po_data", "?select=*&order=nomor_po");
-        renderTable(allPOs);
-      } catch (err) {
-        console.error(err);
-        tbody.innerHTML = `
+        document.querySelectorAll("th[data-sort]").forEach(th => {
+          const icon = th.querySelector(".sort-icon");
+          icon.innerText = th.getAttribute("data-sort") === sortCol
+            ? (sortAsc ? "\u00A0↑" : "\u00A0↓")
+            : "";
+        });
+
+        allPOs.sort((a, b) => {
+          let valA = a[column] === null ? "" : a[column];
+          let valB = b[column] === null ? "" : b[column];
+          if (typeof valA === "string") valA = valA.toLowerCase();
+          if (typeof valB === "string") valB = valB.toLowerCase();
+          if (valA < valB) return sortAsc ? -1 : 1;
+          if (valA > valB) return sortAsc ? 1 : -1;
+          return 0;
+        });
+
+        document.getElementById("search-input").dispatchEvent(new Event("input"));
+      }
+
+      async function loadPOs() {
+        const tbody = document.getElementById("po-table-body");
+        try {
+          allPOs = await sbGet("master_po_data", "?select=*&order=nomor_po");
+          renderTable(allPOs);
+        } catch (err) {
+          console.error(err);
+          tbody.innerHTML = `
           <tr>
             <td colspan="5">
               <div class="table-error">
@@ -193,95 +202,96 @@
             </td>
           </tr>
         `;
-      }
-    }
-
-    document.getElementById("search-input").addEventListener("input", (e) => {
-      const term = e.target.value.toLowerCase();
-      const filtered = allPOs.filter(po =>
-        po.nomor_po.toLowerCase().includes(term) ||
-        (po.vendor && po.vendor.toLowerCase().includes(term))
-      );
-      renderTable(filtered);
-    });
-
-    async function deletePO(po) {
-      if (!confirm(`Yakin ingin menghapus PO ${po.nomor_po} (Shipment ${po.shipment})?`)) return;
-      try {
-        const filter = po.id ? `id=eq.${po.id}` : `nomor_po=eq.${encodeURIComponent(po.nomor_po)}&shipment=eq.${po.shipment}`;
-        await sbDelete("master_po_data", filter);
-        const currentSelected = JSON.parse(sessionStorage.getItem("selectedPO"));
-        if (currentSelected && currentSelected.nomor_po === po.nomor_po && currentSelected.shipment === po.shipment) {
-          sessionStorage.removeItem("selectedPO");
         }
-        showToast("PO berhasil dihapus", "success");
-        loadPOs();
-      } catch (err) {
-        showToast("Gagal menghapus PO: " + err.message, "error");
       }
-    }
 
-    function editPO(po) {
-      isEditMode = true;
-      currentEditKeys = po.id ? { id: po.id } : { nomor_po: po.nomor_po, shipment: po.shipment };
-      document.getElementById("nomor_po").value = po.nomor_po;
-      document.getElementById("shipment").value = po.shipment;
-      document.getElementById("plant").value = po.plant || "";
-      document.getElementById("vendor").value = po.vendor || "";
-      document.querySelector("#add-po-form h3").innerText = "Edit PO";
-      document.querySelector("#add-po-form button[type='submit']").innerText = "Update Data PO";
-    }
+      document.getElementById("search-input").addEventListener("input", (e) => {
+        const term = e.target.value.toLowerCase();
+        const filtered = allPOs.filter(po =>
+          po.nomor_po.toLowerCase().includes(term) ||
+          (po.vendor && po.vendor.toLowerCase().includes(term))
+        );
+        renderTable(filtered);
+      });
 
-    document.getElementById("add-po-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const formData = {
-        nomor_po: document.getElementById("nomor_po").value,
-        shipment: parseInt(document.getElementById("shipment").value),
-        plant: document.getElementById("plant").value || null,
-        vendor: document.getElementById("vendor").value || null,
-      };
-      setSubmitting(e.target, true);
-      try {
-        if (isEditMode) {
-          const filter = currentEditKeys.id
-            ? `id=eq.${currentEditKeys.id}`
-            : `nomor_po=eq.${encodeURIComponent(currentEditKeys.nomor_po)}&shipment=eq.${currentEditKeys.shipment}`;
-          await sbUpdate("master_po_data", formData, filter);
-          showToast("PO berhasil diupdate", "success");
-          isEditMode = false;
-          currentEditKeys = null;
-          document.querySelector("#add-po-form h3").innerText = "Tambah PO Baru";
-          document.querySelector("#add-po-form button[type='submit']").innerText = "Tambah & Pilih PO Ini";
-        } else {
-          const inserted = await sbInsert("master_po_data", formData);
-          showToast("PO berhasil ditambahkan", "success");
-          if (inserted && inserted.length > 0) {
-            selectPO(inserted[0]);
-          } else {
-            selectPO(formData);
+      async function deletePO(po) {
+        if (!confirm(`Yakin ingin menghapus PO ${po.nomor_po} (Shipment ${po.shipment})?`)) return;
+        try {
+          const filter = po.id ? `id=eq.${po.id}` : `nomor_po=eq.${encodeURIComponent(po.nomor_po)}&shipment=eq.${po.shipment}`;
+          await sbDelete("master_po_data", filter);
+          const currentSelected = JSON.parse(sessionStorage.getItem("selectedPO"));
+          if (currentSelected && currentSelected.nomor_po === po.nomor_po && currentSelected.shipment === po.shipment) {
+            sessionStorage.removeItem("selectedPO");
           }
+          showToast("PO berhasil dihapus", "success");
+          loadPOs();
+        } catch (err) {
+          showToast("Gagal menghapus PO: " + err.message, "error");
         }
-        document.getElementById("add-po-form").reset();
-        loadPOs();
-      } catch (err) {
-        console.error(err);
-        if (err.code === "23505") {
-          showToast(
-            `Gagal ${isEditMode ? "mengupdate" : "menambah"} PO: Nomor PO ${formData.nomor_po} (Shipment ${formData.shipment}) sudah terdaftar.`,
-            "error"
-          );
-        } else {
-          showToast(
-            getSupabaseErrorMessage(err, `Gagal ${isEditMode ? "mengupdate" : "menambah"} PO. Silakan coba lagi.`),
-            "error"
-          );
-        }
-      } finally {
-        setSubmitting(e.target, false);
       }
-    });
 
-    loadPOs();
-  </script>
+      function editPO(po) {
+        isEditMode = true;
+        currentEditKeys = po.id ? { id: po.id } : { nomor_po: po.nomor_po, shipment: po.shipment };
+        document.getElementById("nomor_po").value = po.nomor_po;
+        document.getElementById("shipment").value = po.shipment;
+        document.getElementById("plant").value = po.plant || "";
+        document.getElementById("vendor").value = po.vendor || "";
+        document.querySelector("#add-po-form h3").innerText = "Edit PO";
+        document.querySelector("#add-po-form button[type='submit']").innerText = "Update Data PO";
+      }
+
+      document.getElementById("add-po-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = {
+          nomor_po: document.getElementById("nomor_po").value,
+          shipment: parseInt(document.getElementById("shipment").value),
+          plant: document.getElementById("plant").value || null,
+          vendor: document.getElementById("vendor").value || null,
+        };
+        setSubmitting(e.target, true);
+        try {
+          if (isEditMode) {
+            const filter = currentEditKeys.id
+              ? `id=eq.${currentEditKeys.id}`
+              : `nomor_po=eq.${encodeURIComponent(currentEditKeys.nomor_po)}&shipment=eq.${currentEditKeys.shipment}`;
+            await sbUpdate("master_po_data", formData, filter);
+            showToast("PO berhasil diupdate", "success");
+            isEditMode = false;
+            currentEditKeys = null;
+            document.querySelector("#add-po-form h3").innerText = "Tambah PO Baru";
+            document.querySelector("#add-po-form button[type='submit']").innerText = "Tambah & Pilih PO Ini";
+          } else {
+            const inserted = await sbInsert("master_po_data", formData);
+            showToast("PO berhasil ditambahkan", "success");
+            if (inserted && inserted.length > 0) {
+              selectPO(inserted[0]);
+            } else {
+              selectPO(formData);
+            }
+          }
+          document.getElementById("add-po-form").reset();
+          loadPOs();
+        } catch (err) {
+          console.error(err);
+          if (err.code === "23505") {
+            showToast(
+              `Gagal ${isEditMode ? "mengupdate" : "menambah"} PO: Nomor PO ${formData.nomor_po} (Shipment ${formData.shipment}) sudah terdaftar.`,
+              "error"
+            );
+          } else {
+            showToast(
+              getSupabaseErrorMessage(err, `Gagal ${isEditMode ? "mengupdate" : "menambah"} PO. Silakan coba lagi.`),
+              "error"
+            );
+          }
+        } finally {
+          setSubmitting(e.target, false);
+        }
+      });
+
+      loadPOs();
+    </script>
 </body>
+
 </html>

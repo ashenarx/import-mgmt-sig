@@ -35,7 +35,7 @@ async function sbLogin(email, password) {
     },
     body: JSON.stringify({ email, password })
   });
-  
+
   const data = await handleSupabaseResponse(res, "LOGIN", "auth");
   if (data && data.access_token) {
     localStorage.setItem("sb_access_token", data.access_token);
@@ -67,11 +67,11 @@ async function handleSupabaseResponse(res, operation, table) {
     let details = null;
     try {
       details = text ? JSON.parse(text) : null;
-    } catch {}
+    } catch { }
 
     // Handle GoTrue error formats which usually have .msg or .message
     let errorMsg = details?.msg || details?.message || details?.error_description || text;
-    
+
     const error = new Error(errorMsg || `${operation} ${table} failed with status ${res.status}`);
     error.status = res.status;
     error.code = details?.code;

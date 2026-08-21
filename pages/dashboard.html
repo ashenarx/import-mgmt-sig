@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,8 +10,11 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     @keyframes spin {
-      to { transform: rotate(360deg); }
+      to {
+        transform: rotate(360deg);
+      }
     }
+
     .quick-link {
       color: var(--text);
       font-weight: 600;
@@ -18,6 +22,7 @@
       border-bottom: 1px dashed var(--border);
       transition: color 0.15s ease, border-color 0.15s ease;
     }
+
     .quick-link:hover {
       color: var(--primary);
       border-bottom: 1px solid var(--primary);
@@ -27,9 +32,13 @@
 
 <body class="app-page">
 
-  <div id="loading-overlay" style="position: fixed; inset: 0; background: var(--page); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 1; transition: opacity 0.3s ease;">
-    <div style="width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--text-secondary); border-radius: 50%; animation: spin 1s linear infinite;"></div>
-    <p style="margin-top: var(--space-md); color: var(--text-secondary); font-weight: 500; font-size: var(--text-ui);">Memuat Analytics...</p>
+  <div id="loading-overlay"
+    style="position: fixed; inset: 0; background: var(--page); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 1; transition: opacity 0.3s ease;">
+    <div
+      style="width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--text-secondary); border-radius: 50%; animation: spin 1s linear infinite;">
+    </div>
+    <p style="margin-top: var(--space-md); color: var(--text-secondary); font-weight: 500; font-size: var(--text-ui);">
+      Memuat Analytics...</p>
   </div>
 
   <div class="page-container">
@@ -41,7 +50,8 @@
       <h1>Data Dashboard & Analytics</h1>
     </div>
 
-    <form class="filter-bar" onsubmit="event.preventDefault()" style="display: flex; gap: var(--space-md); margin-bottom: var(--space-xl); background: var(--surface); padding: var(--space-md) var(--space-lg); border-radius: var(--radius-md); border: 1px solid var(--border); align-items: center; flex-wrap: nowrap; overflow-x: auto;">
+    <form class="filter-bar" onsubmit="event.preventDefault()"
+      style="display: flex; gap: var(--space-md); margin-bottom: var(--space-xl); background: var(--surface); padding: var(--space-md) var(--space-lg); border-radius: var(--radius-md); border: 1px solid var(--border); align-items: center; flex-wrap: nowrap; overflow-x: auto;">
       <span style="font-weight: 500; color: var(--text-secondary); white-space: nowrap;">Filter Data:</span>
       <select id="filter-time" style="width: auto; min-width: 160px; flex: 1;">
         <option value="all">Semua Waktu</option>
@@ -56,68 +66,108 @@
       </select>
     </form>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-2xl); margin-bottom: var(--space-xl);">
-      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-xl); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between; gap: var(--space-sm);">
-        <span style="color: var(--text-secondary); font-size: var(--text-ui); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Total PO</span>
-        <span id="kpi-po" style="color: var(--text); font-size: 2.2rem; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums;">-</span>
+    <div
+      style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-2xl); margin-bottom: var(--space-xl);">
+      <div
+        style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-xl); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between; gap: var(--space-sm);">
+        <span
+          style="color: var(--text-secondary); font-size: var(--text-ui); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Total
+          PO</span>
+        <span id="kpi-po"
+          style="color: var(--text); font-size: 2.2rem; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums;">-</span>
       </div>
-      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-xl); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between; gap: var(--space-sm);">
-        <span style="color: var(--text-secondary); font-size: var(--text-ui); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Total Shipment</span>
-        <span id="kpi-shipment" style="color: var(--text); font-size: 2.2rem; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums;">-</span>
+      <div
+        style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-xl); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between; gap: var(--space-sm);">
+        <span
+          style="color: var(--text-secondary); font-size: var(--text-ui); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Total
+          Shipment</span>
+        <span id="kpi-shipment"
+          style="color: var(--text); font-size: 2.2rem; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums;">-</span>
       </div>
-      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-xl); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between; gap: var(--space-sm);">
-        <span style="color: var(--text-secondary); font-size: var(--text-ui); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Rata-rata Shipment per PO</span>
-        <span id="kpi-avg" style="color: var(--text); font-size: 2.2rem; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums;">-</span>
+      <div
+        style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-xl); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between; gap: var(--space-sm);">
+        <span
+          style="color: var(--text-secondary); font-size: var(--text-ui); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Rata-rata
+          Shipment per PO</span>
+        <span id="kpi-avg"
+          style="color: var(--text); font-size: 2.2rem; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums;">-</span>
       </div>
-      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-xl); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between; gap: var(--space-sm);">
-        <span style="color: var(--text-secondary); font-size: var(--text-ui); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Aktivitas Hari Ini</span>
-        <span id="kpi-today" style="color: var(--text); font-size: 2.2rem; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums;">-</span>
+      <div
+        style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-xl); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between; gap: var(--space-sm);">
+        <span
+          style="color: var(--text-secondary); font-size: var(--text-ui); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Aktivitas
+          Hari Ini</span>
+        <span id="kpi-today"
+          style="color: var(--text); font-size: 2.2rem; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums;">-</span>
       </div>
     </div>
 
     <div class="two-column" style="grid-template-columns: 1fr 1fr; margin-bottom: var(--space-xl);">
-      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-xl); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; min-width: 0; overflow: hidden;">
-        <h3 style="margin-top: 0; margin-bottom: var(--space-lg); color: var(--text); font-size: var(--text-heading); font-weight: 600;">Tren Input Data (Per Bulan)</h3>
+      <div
+        style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-xl); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; min-width: 0; overflow: hidden;">
+        <h3
+          style="margin-top: 0; margin-bottom: var(--space-lg); color: var(--text); font-size: var(--text-heading); font-weight: 600;">
+          Tren Input Data (Per Bulan)</h3>
         <div style="position: relative; height: 280px; width: 100%; flex-grow: 1;">
           <canvas id="trendChart"></canvas>
         </div>
       </div>
-      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-xl); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; min-width: 0; overflow: hidden;">
-        <h3 style="margin-top: 0; margin-bottom: var(--space-lg); color: var(--text); font-size: var(--text-heading); font-weight: 600;">Proporsi Volume per Plant</h3>
+      <div
+        style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-xl); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; min-width: 0; overflow: hidden;">
+        <h3
+          style="margin-top: 0; margin-bottom: var(--space-lg); color: var(--text); font-size: var(--text-heading); font-weight: 600;">
+          Proporsi Volume per Plant</h3>
         <div style="position: relative; height: 280px; width: 100%; flex-grow: 1;">
           <canvas id="plantChart"></canvas>
         </div>
       </div>
     </div>
-    
+
     <div class="two-column" style="grid-template-columns: 1fr 1fr; margin-bottom: var(--space-xl);">
-      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-xl); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; min-width: 0; overflow: hidden;">
-        <h3 style="margin-top: 0; margin-bottom: var(--space-lg); color: var(--text); font-size: var(--text-heading); font-weight: 600;">Top 5 Vendor (Volume)</h3>
+      <div
+        style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-xl); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; min-width: 0; overflow: hidden;">
+        <h3
+          style="margin-top: 0; margin-bottom: var(--space-lg); color: var(--text); font-size: var(--text-heading); font-weight: 600;">
+          Top 5 Vendor (Volume)</h3>
         <div style="position: relative; height: 280px; width: 100%; flex-grow: 1;">
           <canvas id="vendorChart"></canvas>
         </div>
       </div>
-      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-xl); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; min-width: 0; overflow: hidden;">
-        <h3 style="margin-top: 0; margin-bottom: var(--space-lg); color: var(--text); font-size: var(--text-heading); font-weight: 600;">Top 5 PO (Fragmentasi Shipment)</h3>
+      <div
+        style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-xl); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; min-width: 0; overflow: hidden;">
+        <h3
+          style="margin-top: 0; margin-bottom: var(--space-lg); color: var(--text); font-size: var(--text-heading); font-weight: 600;">
+          Top 5 PO (Fragmentasi Shipment)</h3>
         <div style="position: relative; height: 280px; width: 100%; flex-grow: 1;">
           <canvas id="poSplitChart"></canvas>
         </div>
       </div>
     </div>
 
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-xl); box-shadow: var(--shadow-sm); margin-bottom: var(--space-xl); min-width: 0; overflow: hidden;">
-      <h3 style="margin-top: 0; margin-bottom: var(--space-lg); color: var(--text); font-size: var(--text-heading); font-weight: 600;">Aktivitas Pembaruan Terakhir</h3>
+    <div
+      style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-xl); box-shadow: var(--shadow-sm); margin-bottom: var(--space-xl); min-width: 0; overflow: hidden;">
+      <h3
+        style="margin-top: 0; margin-bottom: var(--space-lg); color: var(--text); font-size: var(--text-heading); font-weight: 600;">
+        Aktivitas Pembaruan Terakhir</h3>
       <div style="overflow-x: auto;">
         <table style="width: 100%; border-collapse: collapse; min-width: 500px;">
           <thead>
             <tr style="border-bottom: 1px solid var(--border);">
-              <th style="text-align: left; color: var(--text-muted); font-weight: 500; font-size: var(--text-ui); padding-bottom: 8px;">Nomor PO</th>
-              <th style="text-align: left; color: var(--text-muted); font-weight: 500; font-size: var(--text-ui); padding-bottom: 8px;">Shp</th>
-              <th style="text-align: right; color: var(--text-muted); font-weight: 500; font-size: var(--text-ui); padding-bottom: 8px;">Diperbarui</th>
+              <th
+                style="text-align: left; color: var(--text-muted); font-weight: 500; font-size: var(--text-ui); padding-bottom: 8px;">
+                Nomor PO</th>
+              <th
+                style="text-align: left; color: var(--text-muted); font-weight: 500; font-size: var(--text-ui); padding-bottom: 8px;">
+                Shp</th>
+              <th
+                style="text-align: right; color: var(--text-muted); font-weight: 500; font-size: var(--text-ui); padding-bottom: 8px;">
+                Diperbarui</th>
             </tr>
           </thead>
           <tbody id="recent-table">
-            <tr><td colspan="3" style="text-align: center; color: var(--text-muted); padding: 16px 0;">Memuat data...</td></tr>
+            <tr>
+              <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 16px 0;">Memuat data...</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -130,14 +180,14 @@
   <script src="../assets/js/page-utils.js"></script>
   <script>
     Chart.defaults.font.family = '"Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    Chart.defaults.color = '#737373'; 
+    Chart.defaults.color = '#737373';
 
     let rawData = [];
     let chartInstances = {};
 
-    window.quickJump = function(id) {
+    window.quickJump = function (id) {
       const po = rawData.find(d => d.id == id);
-      if(po) {
+      if (po) {
         sessionStorage.setItem("selectedPO", JSON.stringify({
           id: po.id,
           nomor_po: po.nomor_po,
@@ -166,7 +216,7 @@
     async function initDashboard() {
       try {
         rawData = await fetchAllData("master_po_data", "?select=id,nomor_po,shipment,plant,vendor,created_at,updated_at,updated_by&order=updated_at.desc");
-        
+
         const plants = [...new Set(rawData.map(d => d.plant ? d.plant.trim() : "").filter(Boolean))].sort();
         const plantSelect = document.getElementById("filter-plant");
         plants.forEach(p => {
@@ -207,7 +257,7 @@
       const vFilter = document.getElementById("filter-vendor").value;
 
       let filtered = rawData;
-      
+
       const now = new Date();
       if (tFilter === '30d') {
         const past30 = new Date();
@@ -229,7 +279,7 @@
       const uniquePOs = new Set(filtered.map(d => d.nomor_po)).size;
       document.getElementById("kpi-po").textContent = uniquePOs;
       document.getElementById("kpi-shipment").textContent = filtered.length;
-      
+
       const avg = filtered.length / (uniquePOs || 1);
       document.getElementById("kpi-avg").textContent = avg.toFixed(1);
 
@@ -269,7 +319,7 @@
       const monthlyCounts = {};
       filtered.forEach(d => {
         if (!d.created_at) return;
-        const monthStr = d.created_at.substring(0, 7); 
+        const monthStr = d.created_at.substring(0, 7);
         monthlyCounts[monthStr] = (monthlyCounts[monthStr] || 0) + 1;
       });
       const sortedMonths = Object.entries(monthlyCounts).sort((a, b) => a[0].localeCompare(b[0]));
@@ -310,7 +360,7 @@
       if (chartInstances[canvasId]) {
         chartInstances[canvasId].destroy();
       }
-      
+
       const ctx = document.getElementById(canvasId).getContext('2d');
       const config = {
         type: type,
@@ -335,26 +385,27 @@
             tooltip: { cornerRadius: 6, padding: 12 }
           },
           scales: type === 'doughnut' ? {} : {
-            x: { 
-              grid: { display: false }, 
-              border: { display: false }, 
+            x: {
+              grid: { display: false },
+              border: { display: false },
               beginAtZero: true,
               title: { display: !!xLabel, text: xLabel, color: '#737373', font: { size: 11, weight: 500 } }
             },
-            y: { 
-              grid: { color: '#E5E5E5' }, 
-              border: { display: false }, 
+            y: {
+              grid: { color: '#E5E5E5' },
+              border: { display: false },
               beginAtZero: true,
               title: { display: !!yLabel, text: yLabel, color: '#737373', font: { size: 11, weight: 500 } }
             }
           }
         }
       };
-      
+
       chartInstances[canvasId] = new Chart(ctx, config);
     }
 
     initDashboard();
   </script>
 </body>
+
 </html>

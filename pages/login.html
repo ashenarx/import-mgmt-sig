@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,28 +8,32 @@
   <link rel="preload" href="../assets/images/home-page.avif" as="image">
   <link rel="stylesheet" href="../assets/css/style.css">
 </head>
+
 <body class="home-page">
 
   <div class="page-container" style="max-width: 400px; margin: 10vh auto; text-align: center;">
-    
+
     <h1 id="form-title" style="font-size: 2rem; margin-bottom: 0.5rem;">Login</h1>
-    <p id="form-subtitle" style="color: var(--text-secondary); margin-bottom: 2rem;">Masuk untuk mengelola data Import</p>
+    <p id="form-subtitle" style="color: var(--text-secondary); margin-bottom: 2rem;">Masuk untuk mengelola data Import
+    </p>
 
     <!-- Login Form -->
     <form id="login-form" style="text-align: left;">
       <div class="form-group" style="margin-bottom: 1rem;">
         <label for="login-email" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Email</label>
-        <input type="email" id="login-email" required placeholder="admin@semengresik.com" style="width: 100%; box-sizing: border-box;">
+        <input type="email" id="login-email" required placeholder="admin@semengresik.com"
+          style="width: 100%; box-sizing: border-box;">
       </div>
       <div class="form-group" style="margin-bottom: 1.5rem;">
         <label for="login-password" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Password</label>
         <input type="password" id="login-password" required style="width: 100%; box-sizing: border-box;">
       </div>
-      
+
       <button type="submit" id="btn-login" style="width: 100%; margin-bottom: 1rem;">Masuk</button>
-      
+
       <div style="text-align: center; font-size: 0.9rem; color: var(--text-secondary);">
-        Belum punya akun? <a href="#" id="show-register" style="color: var(--primary); text-decoration: none;">Daftar sekarang</a>
+        Belum punya akun? <a href="#" id="show-register" style="color: var(--primary); text-decoration: none;">Daftar
+          sekarang</a>
       </div>
     </form>
 
@@ -36,7 +41,8 @@
     <form id="register-form" style="text-align: left; display: none;">
       <div class="form-group" style="margin-bottom: 1rem;">
         <label for="reg-email" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Email</label>
-        <input type="email" id="reg-email" required placeholder="admin@semengresik.com" style="width: 100%; box-sizing: border-box;">
+        <input type="email" id="reg-email" required placeholder="admin@semengresik.com"
+          style="width: 100%; box-sizing: border-box;">
       </div>
       <div class="form-group" style="margin-bottom: 1rem;">
         <label for="reg-password" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Password</label>
@@ -44,13 +50,15 @@
       </div>
       <div class="form-group" style="margin-bottom: 1.5rem;">
         <label for="reg-key" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Registration Key</label>
-        <input type="text" id="reg-key" required placeholder="Masukkan Auth Key" style="width: 100%; box-sizing: border-box;">
+        <input type="text" id="reg-key" required placeholder="Masukkan Auth Key"
+          style="width: 100%; box-sizing: border-box;">
       </div>
-      
+
       <button type="submit" id="btn-register" style="width: 100%; margin-bottom: 1rem;">Daftar</button>
-      
+
       <div style="text-align: center; font-size: 0.9rem; color: var(--text-secondary);">
-        Sudah punya akun? <a href="#" id="show-login" style="color: var(--primary); text-decoration: none;">Masuk di sini</a>
+        Sudah punya akun? <a href="#" id="show-login" style="color: var(--primary); text-decoration: none;">Masuk di
+          sini</a>
       </div>
     </form>
   </div>
@@ -67,7 +75,7 @@
     const registerForm = document.getElementById("register-form");
     const formTitle = document.getElementById("form-title");
     const formSubtitle = document.getElementById("form-subtitle");
-    
+
     // Toggles
     document.getElementById("show-register").addEventListener("click", (e) => {
       e.preventDefault();
@@ -91,10 +99,10 @@
       const btn = document.getElementById("btn-login");
       const email = document.getElementById("login-email").value;
       const pass = document.getElementById("login-password").value;
-      
+
       btn.disabled = true;
       btn.textContent = "Memproses...";
-      
+
       try {
         await sbLogin(email, pass);
         window.location.href = "../index.html";
@@ -118,10 +126,10 @@
       const email = document.getElementById("reg-email").value;
       const pass = document.getElementById("reg-password").value;
       const key = document.getElementById("reg-key").value;
-      
+
       btn.disabled = true;
       btn.textContent = "Memproses...";
-      
+
       try {
         await sbRegister(email, pass, key);
         // Supabase sends a confirmation email by default
@@ -137,4 +145,5 @@
     });
   </script>
 </body>
+
 </html>

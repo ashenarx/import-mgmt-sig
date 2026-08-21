@@ -28,9 +28,9 @@ function setSubmitting(form, isSubmitting) {
 }
 
 // Get query parameters from the URL
-const params   = new URLSearchParams(window.location.search);
+const params = new URLSearchParams(window.location.search);
 const masterId = params.get("master_id");
-const nomorPO  = params.get("po");
+const nomorPO = params.get("po");
 const shipment = params.get("shipment");
 
 

@@ -148,3 +148,10 @@ document.querySelectorAll('input[type="date"]').forEach(input => {
   input.addEventListener("change", update);
   update();
 });
+
+// Minimum 0 for number inputs
+document.querySelectorAll("input[type='number']").forEach(input => {
+  input.addEventListener("input", (e) => {
+    if (e.target.value < 0) e.target.value = 0;
+  });
+});

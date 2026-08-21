@@ -166,14 +166,6 @@
         }
         }
 
-        document.querySelectorAll(
-            "#free_time_dd, #nilai_po, #qty_order, #qty_delivered, #still_to_be_deliver"
-        ).forEach(input => {
-            input.addEventListener("input", (e) => {
-                if (e.target.value < 0) e.target.value = 0;
-            });
-        });
-
         document.getElementById("inputpo-form").addEventListener("submit", async (e) => {
         e.preventDefault();
         const data = {

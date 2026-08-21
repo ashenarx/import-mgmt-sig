@@ -5,12 +5,257 @@
   <link rel="preload" href="../assets/images/app-page.avif" as="image">
   <link rel="stylesheet" href="../assets/css/style.css">
 </head>
+<body class="app-page">
+  <div class="page-container">
+    <nav class="page-nav">
+      <a href="../index.html">← Kembali ke Home</a>
+    </nav>
+    <h1>Proses Jaspel</h1>
+    <div id="po-context" class="po-banner"></div>
 
-<body>
-  <h1>Proses Jaspel</h1>
+    <form id="jaspel-form" class="grid-form">
+      <label>
+        Invoice OA
+        <input type="text" id="inv_oa">
+      </label>
 
+      <label>
+        Invoice Inklaring
+        <input type="text" id="inv_inklaring">
+      </label>
+
+      <label>
+        Tanggal Terima Inv OA
+        <input type="date" id="terima_inv_oa">
+      </label>
+
+      <label>
+        Tanggal Terima Inv Inklaring
+        <input type="date" id="terima_inv_inklaring">
+      </label>
+
+      <label>
+        Tanggal Create PP OA
+        <input type="date" id="create_pp_oa">
+      </label>
+
+      <label>
+        Tanggal Kirim PP OA
+        <input type="date" id="kirim_pp_oa">
+      </label>
+
+      <label>
+        Tanggal Aproval PP OA
+        <input type="date" id="aproval_pp_oa">
+      </label>
+
+      <label>
+        Nilai PP OA
+        <input type="number" min="0" step="0.01" id="nilai_pp_oa">
+      </label>
+
+      <label>
+        Tanggal Create PP Inklaring
+        <input type="date" id="create_pp_inklaring">
+      </label>
+
+      <label>
+        Tanggal Kirim PP Inklaring
+        <input type="date" id="kirim_pp_inklaring">
+      </label>
+
+      <label>
+        Tanggal Aproval PP Inklaring
+        <input type="date" id="aproval_pp_inklaring">
+      </label>
+
+      <label>
+        Nilai PP Inklaring
+        <input type="number" min="0" step="0.01" id="nilai_pp_inklaring">
+      </label>
+
+      <label>
+        Jumlah Container
+        <input type="number" min="0" id="jumlah_container">
+      </label>
+
+      <label>
+        Tipe Container
+        <input type="text" id="tipe_container" placeholder="mis. 20, 40">
+      </label>
+
+      <label>
+        MIR7 PP OA
+        <input type="text" id="mir7_pp_oa">
+      </label>
+
+      <label>
+        No. PP OA
+        <input type="text" id="no_pp_oa">
+      </label>
+
+      <label>
+        MIR7 Inklaring
+        <input type="text" id="mir7_inklaring">
+      </label>
+
+      <label>
+        No. PP Inklaring
+        <input type="text" id="no_pp_inklaring">
+      </label>
+
+      <label>
+        Tanggal PP OA Return
+        <input type="date" id="pp_oa_return">
+      </label>
+      
+      <label>
+        Tanggal PP Incl Return
+        <input type="date" id="pp_incl_return">
+      </label>
+
+      <label>
+        Tanggal Re-Create PP OA
+        <input type="date" id="re_create_pp_oa">
+      </label>
+      
+      <label>
+        Tanggal Re-Create PP Incl
+        <input type="date" id="re_create_pp_incl">
+      </label>
+
+      <label>
+        Tanggal Re-Aproval PP OA
+        <input type="date" id="re_aproval_pp_oa">
+      </label>
+
+      <label>
+        Tanggal Re-Aproval PP Incl
+        <input type="date" id="re_aproval_pp_incl">
+      </label>
+
+      <label>
+        Tanggal Kirim New PP OA
+        <input type="date" id="kirim_new_pp_oa">
+      </label>
+
+      <label>
+        Tanggal Kirim New PP Incl
+        <input type="date" id="kirim_new_pp_incl">
+      </label>
+
+      <label>
+        No. Clearing PPOA
+        <input type="text" id="no_clearing_ppoa">
+      </label>
+
+      <label>
+        No. Clearing PPINCL
+        <input type="text" id="no_clearing_ppincl">
+      </label>
+
+      <label>
+        Status Proses Jaspel
+        <select id="status_proses_jaspel">
+          <option value="">-- Pilih --</option>
+          <option value="PROSES">PROSES</option>
+          <option value="DONE">DONE</option>
+        </select>
+      </label>
+
+      <label>
+        Keterangan Jaspel
+        <textarea id="keterangan_jaspel" rows="1"></textarea>
+      </label>
+
+      <button type="submit" class="grid-span-full btn-primary">Simpan Proses Jaspel</button>
+    </form>
+  </div>
+
+  <script src="../assets/js/config.js"></script>
   <script src="../assets/js/supabase-client.js"></script>
   <script>
+    const params = new URLSearchParams(window.location.search);
+    const nomorPO = params.get("po");
+    const shipment = params.get("shipment");
+    let recordId = null;
+
+    function poFilter() {
+      return `nomor_po=eq.${encodeURIComponent(nomorPO)}&shipment=eq.${shipment}`;
+    }
+
+    async function loadContext() {
+      const ctx = document.getElementById("po-context");
+      if (!nomorPO || !shipment) {
+        ctx.innerHTML = `<em>PO tidak ditemukan di URL. Kembali ke Home dan pilih PO terlebih dahulu.</em>`;
+        return;
+      }
+      try {
+        const master = await sbGet("master_po_data", `?${poFilter()}&select=*`);
+        if (master.length === 0) {
+          ctx.innerHTML = `<em>Data master PO tidak ditemukan.</em>`;
+          return;
+        }
+        const po = master[0];
+        ctx.innerHTML = `
+          <div>
+            <span style="color: var(--text-secondary);">PO:</span> <strong>${po.nomor_po}</strong>
+            <span style="color: var(--text-muted);"> | Shipment:</span> <strong>${po.shipment}</strong>
+            <span style="color: var(--text-muted);"> | Plant:</span> ${po.plant ?? "-"}
+            <span style="color: var(--text-muted);"> | Vendor:</span> ${po.vendor ?? "-"}
+          </div>`;
+      } catch (err) {
+        ctx.innerHTML = `<em>Gagal memuat data: ${err.message}</em>`;
+      }
+    }
+
+    const fields = [
+      "inv_oa", "inv_inklaring", "terima_inv_oa", "terima_inv_inklaring",
+      "create_pp_oa", "kirim_pp_oa", "aproval_pp_oa", "nilai_pp_oa",
+      "create_pp_inklaring", "kirim_pp_inklaring", "aproval_pp_inklaring",
+      "nilai_pp_inklaring", "jumlah_container", "tipe_container", "mir7_pp_oa",
+      "no_pp_oa", "mir7_inklaring", "no_pp_inklaring", "pp_oa_return",
+      "pp_incl_return", "re_create_pp_oa", "re_create_pp_incl",
+      "re_aproval_pp_oa", "re_aproval_pp_incl", "kirim_new_pp_oa",
+      "kirim_new_pp_incl", "no_clearing_ppoa", "no_clearing_ppincl",
+      "status_proses_jaspel", "keterangan_jaspel"
+    ];
+
+    async function loadJaspel() {
+      try {
+        const data = await sbGet("proses_jaspel", `?${poFilter()}&select=*&limit=1`);
+        if (data.length > 0) {
+          recordId = data[0].id;
+          fields.forEach(f => {
+            document.getElementById(f).value = data[0][f] ?? "";
+          });
+        }
+      } catch (err) {
+        showToast("Gagal memuat Proses Jaspel: " + err.message, "error");
+      }
+    }
+
+    document.getElementById("jaspel-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const data = { nomor_po: nomorPO, shipment: parseInt(shipment) };
+      fields.forEach(f => {
+        data[f] = document.getElementById(f).value || null;
+      });
+      try {
+        if (recordId) {
+          await sbUpdate("proses_jaspel", data, `id=eq.${recordId}`);
+        } else {
+          const inserted = await sbInsert("proses_jaspel", data);
+          recordId = inserted[0].id;
+        }
+        showToast("Proses Jaspel berhasil disimpan", "success");
+      } catch (err) {
+        showToast(getSupabaseErrorMessage(err, "Gagal menyimpan: " + err.message), "error");
+      }
+    });
+
+    loadContext();
+    loadJaspel();
   </script>
 </body>
 </html>

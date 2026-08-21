@@ -241,16 +241,6 @@
       }
     }
 
-    document.querySelectorAll(
-      "#jumlah_container, #nilai_inv, #estimasi_inv_idr"
-    ).forEach(input => {
-      input.addEventListener("input", (e) => {
-        if (e.target.value < 0) {
-          e.target.value = 0;
-        }
-      });
-    });
-
     document.getElementById("shipping-form").addEventListener("submit", async (e) => {
       e.preventDefault();
 

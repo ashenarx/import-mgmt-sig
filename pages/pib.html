@@ -229,16 +229,6 @@
       }
     }
 
-    document.querySelectorAll(
-      "#nilai_pp_pib, #nilai_pabean, #nilai_bea_masuk, #tarif_bm, #nilai_ppn, #nilai_pph"
-    ).forEach(input => {
-      input.addEventListener("input", (e) => {
-        if (e.target.value < 0) {
-          e.target.value = 0;
-        }
-      });
-    });    
-
     document.getElementById("pib-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const data = { nomor_po: nomorPO, shipment: parseInt(shipment) };

@@ -188,16 +188,6 @@
       }
     }
 
-    document.querySelectorAll(
-      "#nilai_pp_barang, #durasi_top"
-    ).forEach(input => {
-      input.addEventListener("input", (e) => {
-        if (e.target.value < 0) {
-          e.target.value = 0;
-        }
-      });
-    });
-
     document.getElementById("ppbrg-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const data = { nomor_po: nomorPO, shipment: parseInt(shipment) };

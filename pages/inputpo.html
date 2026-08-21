@@ -106,7 +106,7 @@
     <script src="../assets/js/supabase-client.js"></script>
     <script src="../assets/js/page-utils.js"></script>
     <script>
-        let inputPOExists = false;
+        let recordId = null;
 
         const fields = [
           "doc_date", "delivery_date", "deskripsi", "jenis_barang",
@@ -118,9 +118,9 @@
 
         async function loadInputPO() {
           try {
-            const data = await sbGet("input_po", `?${poFilter()}&select=*`);
+            const data = await sbGet("input_po", `?${poFilter()}&select=*&limit=1`);
             if (data.length > 0) {
-              inputPOExists = true;
+              recordId = data[0].id;
               const p = data[0];
               fields.forEach(f => {
                 document.getElementById(f).value = p[f] ?? "";
@@ -133,7 +133,11 @@
 
         document.getElementById("inputpo-form").addEventListener("submit", async (e) => {
           e.preventDefault();
-          const data = { nomor_po: nomorPO, shipment: parseInt(shipment) };
+          const data = {
+            master_id: masterId ? parseInt(masterId) : null,
+            nomor_po: nomorPO,
+            shipment: parseInt(shipment)
+          };
           fields.forEach(f => {
             data[f] = document.getElementById(f).value || null;
           });
@@ -145,11 +149,13 @@
           if (data.still_to_be_deliver !== null)  data.still_to_be_deliver  = parseFloat(data.still_to_be_deliver);
           setSubmitting(e.target, true);
           try {
-            if (inputPOExists) {
-              await sbUpdate("input_po", data, poFilter());
+            if (recordId) {
+              await sbUpdate("input_po", data, `id=eq.${recordId}`);
             } else {
-              await sbInsert("input_po", data);
-              inputPOExists = true;
+              const inserted = await sbInsert("input_po", data);
+              if (inserted && inserted.length > 0) {
+                recordId = inserted[0].id;
+              }
             }
             showToast("Input PO berhasil disimpan", "success");
           } catch (err) {

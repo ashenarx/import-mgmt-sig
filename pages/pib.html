@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
@@ -173,7 +173,7 @@
   <script src="../assets/js/supabase-client.js"></script>
   <script src="../assets/js/page-utils.js"></script>
   <script>
-    let pibExists = false;
+    let recordId = null;
 
     const fields = [
       "permintaan_draft_pib", "terima_draft_pib", "ata", "confirm_draft_pib",
@@ -187,9 +187,9 @@
 
     async function loadPIB() {
       try {
-        const data = await sbGet("proses_pib", `?${poFilter()}&select=*`);
+        const data = await sbGet("proses_pib", `?${poFilter()}&select=*&limit=1`);
         if (data.length > 0) {
-          pibExists = true;
+          recordId = data[0].id;
           const p = data[0];
           fields.forEach(f => {
             document.getElementById(f).value = p[f] ?? "";
@@ -203,16 +203,22 @@
     document.getElementById("pib-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       setSubmitting(e.target, true);
-      const data = { nomor_po: nomorPO, shipment: parseInt(shipment) };
+      const data = {
+        master_id: masterId ? parseInt(masterId) : null,
+        nomor_po: nomorPO,
+        shipment: parseInt(shipment)
+      };
       fields.forEach(f => {
         data[f] = document.getElementById(f).value || null;
       });
       try {
-        if (pibExists) {
-          await sbUpdate("proses_pib", data, poFilter());
+        if (recordId) {
+          await sbUpdate("proses_pib", data, `id=eq.${recordId}`);
         } else {
-          await sbInsert("proses_pib", data);
-          pibExists = true;
+          const inserted = await sbInsert("proses_pib", data);
+          if (inserted && inserted.length > 0) {
+            recordId = inserted[0].id;
+          }
         }
         showToast("Proses PIB berhasil disimpan", "success");
       } catch (err) {

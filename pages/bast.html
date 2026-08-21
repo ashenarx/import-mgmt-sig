@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
@@ -78,7 +78,7 @@
   <script src="../assets/js/supabase-client.js"></script>
   <script src="../assets/js/page-utils.js"></script>
   <script>
-    let bastExists = false;
+    let recordId = null;
     const fields = [
       "monitoring_bast_release", "hasil_monitoring_bast_release",
       "bast_release_dari_inventory", "kirim_bast_ke_vendor", "bast_all_signed",
@@ -87,9 +87,9 @@
 
     async function loadBast() {
       try {
-        const data = await sbGet("proses_bast", `?${poFilter()}&select=*`);
+        const data = await sbGet("proses_bast", `?${poFilter()}&select=*&limit=1`);
         if (data.length > 0) {
-          bastExists = true;
+          recordId = data[0].id;
           const p = data[0];
           fields.forEach(f => {
             document.getElementById(f).value = p[f] ?? "";
@@ -103,16 +103,22 @@
     document.getElementById("bast-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       setSubmitting(e.target, true);
-      const data = { nomor_po: nomorPO, shipment: parseInt(shipment) };
+      const data = {
+        master_id: masterId ? parseInt(masterId) : null,
+        nomor_po: nomorPO,
+        shipment: parseInt(shipment)
+      };
       fields.forEach(f => {
         data[f] = document.getElementById(f).value || null;
       });
       try {
-        if (bastExists) {
-          await sbUpdate("proses_bast", data, poFilter());
+        if (recordId) {
+          await sbUpdate("proses_bast", data, `id=eq.${recordId}`);
         } else {
-          await sbInsert("proses_bast", data);
-          bastExists = true;
+          const inserted = await sbInsert("proses_bast", data);
+          if (inserted && inserted.length > 0) {
+            recordId = inserted[0].id;
+          }
         }
         showToast("BAST berhasil disimpan", "success");
       } catch (err) {

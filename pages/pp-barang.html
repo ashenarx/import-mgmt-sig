@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
@@ -133,7 +133,7 @@
   <script src="../assets/js/supabase-client.js"></script>
   <script src="../assets/js/page-utils.js"></script>
   <script>
-    let ppbrgExists = false;
+    let recordId = null;
 
     const fields = [
       "create_pp_barang", "aproval_pp_barang", "kirim_pp_barang", "mir7ppbrg",
@@ -146,9 +146,9 @@
 
     async function loadPPBarang() {
       try {
-        const data = await sbGet("proses_pp_barang", `?${poFilter()}&select=*`);
+        const data = await sbGet("proses_pp_barang", `?${poFilter()}&select=*&limit=1`);
         if (data.length > 0) {
-          ppbrgExists = true;
+          recordId = data[0].id;
           const p = data[0];
           fields.forEach(f => {
             document.getElementById(f).value = p[f] ?? "";
@@ -162,16 +162,22 @@
     document.getElementById("ppbrg-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       setSubmitting(e.target, true);
-      const data = { nomor_po: nomorPO, shipment: parseInt(shipment) };
+      const data = {
+        master_id: masterId ? parseInt(masterId) : null,
+        nomor_po: nomorPO,
+        shipment: parseInt(shipment)
+      };
       fields.forEach(f => {
         data[f] = document.getElementById(f).value || null;
       });
       try {
-        if (ppbrgExists) {
-          await sbUpdate("proses_pp_barang", data, poFilter());
+        if (recordId) {
+          await sbUpdate("proses_pp_barang", data, `id=eq.${recordId}`);
         } else {
-          await sbInsert("proses_pp_barang", data);
-          ppbrgExists = true;
+          const inserted = await sbInsert("proses_pp_barang", data);
+          if (inserted && inserted.length > 0) {
+            recordId = inserted[0].id;
+          }
         }
         showToast("PP Barang berhasil disimpan", "success");
       } catch (err) {

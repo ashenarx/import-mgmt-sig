@@ -96,7 +96,7 @@
   <script src="../assets/js/supabase-client.js"></script>
   <script src="../assets/js/page-utils.js"></script>
   <script>
-    let preimportExists = false;
+    let recordId = null;
 
     const fields = [
       "review_draft_op", "review_draft_op_keterangan",
@@ -108,9 +108,9 @@
 
     async function loadPreImport() {
       try {
-        const data = await sbGet("pre_po_impor", `?${poFilter()}&select=*`);
+        const data = await sbGet("pre_po_impor", `?${poFilter()}&select=*&limit=1`);
         if (data.length > 0) {
-          preimportExists = true;
+          recordId = data[0].id;
           const p = data[0];
           fields.forEach(f => {
             document.getElementById(f).value = p[f] ?? "";
@@ -123,17 +123,23 @@
 
     document.getElementById("preimport-form").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const data = { nomor_po: nomorPO, shipment: parseInt(shipment) };
+      const data = {
+        master_id: masterId ? parseInt(masterId) : null,
+        nomor_po: nomorPO,
+        shipment: parseInt(shipment)
+      };
       fields.forEach(f => {
         data[f] = document.getElementById(f).value || null;
       });
       setSubmitting(e.target, true);
       try {
-        if (preimportExists) {
-          await sbUpdate("pre_po_impor", data, poFilter());
+        if (recordId) {
+          await sbUpdate("pre_po_impor", data, `id=eq.${recordId}`);
         } else {
-          await sbInsert("pre_po_impor", data);
-          preimportExists = true;
+          const inserted = await sbInsert("pre_po_impor", data);
+          if (inserted && inserted.length > 0) {
+            recordId = inserted[0].id;
+          }
         }
         showToast("PreImport review berhasil disimpan", "success");
       } catch (err) {

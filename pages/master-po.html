@@ -84,8 +84,15 @@
     let isEditMode = false;
     let currentEditKeys = null;
 
-    function selectPO(nomor_po, shipment) {
-      sessionStorage.setItem("selectedPO", JSON.stringify({ nomor_po, shipment }));
+    function selectPO(po) {
+      sessionStorage.setItem("selectedPO", JSON.stringify({
+        id: po.id,
+        nomor_po: po.nomor_po,
+        shipment: po.shipment,
+        plant: po.plant,
+        vendor: po.vendor,
+        deskripsi_barang: po.deskripsi_barang
+      }));
       window.location.href = "../index.html";
     }
 
@@ -118,9 +125,9 @@
       const po = renderedData[parseInt(btn.dataset.idx)];
       if (!po) return;
       const action = btn.dataset.action;
-      if (action === "select") selectPO(po.nomor_po, po.shipment);
+      if (action === "select") selectPO(po);
       if (action === "edit")   editPO(po);
-      if (action === "delete") deletePO(po.nomor_po, po.shipment);
+      if (action === "delete") deletePO(po);
     });
 
     let sortCol = "";
@@ -198,13 +205,13 @@
       renderTable(filtered);
     });
 
-    async function deletePO(nomor_po, shipment) {
-      if (!confirm(`Yakin ingin menghapus PO ${nomor_po} (Shipment ${shipment})?`)) return;
+    async function deletePO(po) {
+      if (!confirm(`Yakin ingin menghapus PO ${po.nomor_po} (Shipment ${po.shipment})?`)) return;
       try {
-        const filter = `nomor_po=eq.${encodeURIComponent(nomor_po)}&shipment=eq.${shipment}`;
+        const filter = po.id ? `id=eq.${po.id}` : `nomor_po=eq.${encodeURIComponent(po.nomor_po)}&shipment=eq.${po.shipment}`;
         await sbDelete("master_po_data", filter);
         const currentSelected = JSON.parse(sessionStorage.getItem("selectedPO"));
-        if (currentSelected && currentSelected.nomor_po === nomor_po && currentSelected.shipment === shipment) {
+        if (currentSelected && currentSelected.nomor_po === po.nomor_po && currentSelected.shipment === po.shipment) {
           sessionStorage.removeItem("selectedPO");
         }
         showToast("PO berhasil dihapus", "success");
@@ -216,7 +223,7 @@
 
     function editPO(po) {
       isEditMode = true;
-      currentEditKeys = { nomor_po: po.nomor_po, shipment: po.shipment };
+      currentEditKeys = po.id ? { id: po.id } : { nomor_po: po.nomor_po, shipment: po.shipment };
       document.getElementById("nomor_po").value = po.nomor_po;
       document.getElementById("shipment").value = po.shipment;
       document.getElementById("plant").value = po.plant || "";
@@ -236,7 +243,9 @@
       setSubmitting(e.target, true);
       try {
         if (isEditMode) {
-          const filter = `nomor_po=eq.${encodeURIComponent(currentEditKeys.nomor_po)}&shipment=eq.${currentEditKeys.shipment}`;
+          const filter = currentEditKeys.id
+            ? `id=eq.${currentEditKeys.id}`
+            : `nomor_po=eq.${encodeURIComponent(currentEditKeys.nomor_po)}&shipment=eq.${currentEditKeys.shipment}`;
           await sbUpdate("master_po_data", formData, filter);
           showToast("PO berhasil diupdate", "success");
           isEditMode = false;
@@ -244,9 +253,13 @@
           document.querySelector("#add-po-form h3").innerText = "Tambah PO Baru";
           document.querySelector("#add-po-form button[type='submit']").innerText = "Tambah & Pilih PO Ini";
         } else {
-          await sbInsert("master_po_data", formData);
+          const inserted = await sbInsert("master_po_data", formData);
           showToast("PO berhasil ditambahkan", "success");
-          selectPO(formData.nomor_po, formData.shipment);
+          if (inserted && inserted.length > 0) {
+            selectPO(inserted[0]);
+          } else {
+            selectPO(formData);
+          }
         }
         document.getElementById("add-po-form").reset();
         loadPOs();

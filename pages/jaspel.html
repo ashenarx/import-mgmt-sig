@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
@@ -209,7 +209,11 @@
     document.getElementById("jaspel-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       setSubmitting(e.target, true);
-      const data = { nomor_po: nomorPO, shipment: parseInt(shipment) };
+      const data = {
+        master_id: masterId ? parseInt(masterId) : null,
+        nomor_po: nomorPO,
+        shipment: parseInt(shipment)
+      };
       fields.forEach(f => {
         data[f] = document.getElementById(f).value || null;
       });

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
@@ -114,7 +114,7 @@
   <script src="../assets/js/supabase-client.js"></script>
   <script src="../assets/js/page-utils.js"></script>
   <script>
-    let lcExists = false;
+    let recordId = null;
     const fields = [
       "kirim_lc_guidance", "vendor_terima_lc_guidance", "terima_lc_guidance",
       "kirim_draft_lc", "tgl_terima_draft_lc", "tgl_awal_nego_draft_lc",
@@ -127,9 +127,9 @@
 
     async function loadLC() {
       try {
-        const data = await sbGet("proses_lc", `?${poFilter()}&select=*`);
+        const data = await sbGet("proses_lc", `?${poFilter()}&select=*&limit=1`);
         if (data.length > 0) {
-          lcExists = true;
+          recordId = data[0].id;
           const p = data[0];
           fields.forEach(f => {
             document.getElementById(f).value = p[f] ?? "";
@@ -143,21 +143,26 @@
     document.getElementById("lc-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       setSubmitting(e.target, true);
-      const data = { nomor_po: nomorPO, shipment: parseInt(shipment) };
+      const data = {
+        master_id: masterId ? parseInt(masterId) : null,
+        nomor_po: nomorPO,
+        shipment: parseInt(shipment)
+      };
       fields.forEach(f => {
         data[f] = document.getElementById(f).value || null;
       });
       try {
-        if (lcExists) {
-          await sbUpdate("proses_lc", data, poFilter());
+        if (recordId) {
+          await sbUpdate("proses_lc", data, `id=eq.${recordId}`);
         } else {
-          await sbInsert("proses_lc", data);
-          lcExists = true;
+          const inserted = await sbInsert("proses_lc", data);
+          if (inserted && inserted.length > 0) {
+            recordId = inserted[0].id;
+          }
         }
         showToast("Proses L/C berhasil disimpan", "success");
       } catch (err) {
         showToast(getSupabaseErrorMessage(err, "Gagal menyimpan Proses L/C: " + err.message), "error");
-      }
       } finally {
         setSubmitting(e.target, false);
       }

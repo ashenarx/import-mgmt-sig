@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
@@ -190,12 +190,14 @@
       "ket_tambahan"
     ];
 
+    let recordId = null;
+
     async function loadShipping() {
       try {
-        const data = await sbGet("shipping_document", `?${poFilter()}&select=*`);
+        const data = await sbGet("shipping_document", `?${poFilter()}&select=*&limit=1`);
 
         if (data.length > 0) {
-          shippingExists = true;
+          recordId = data[0].id;
           const p = data[0];
 
           fields.forEach(f => {
@@ -212,6 +214,7 @@
       setSubmitting(e.target, true);
 
       const data = {
+        master_id: masterId ? parseInt(masterId) : null,
         nomor_po: nomorPO,
         shipment: parseInt(shipment)
       };
@@ -221,11 +224,13 @@
       });
 
       try {
-        if (shippingExists) {
-          await sbUpdate("shipping_document", data, poFilter());
+        if (recordId) {
+          await sbUpdate("shipping_document", data, `id=eq.${recordId}`);
         } else {
-          await sbInsert("shipping_document", data);
-          shippingExists = true;
+          const inserted = await sbInsert("shipping_document", data);
+          if (inserted && inserted.length > 0) {
+            recordId = inserted[0].id;
+          }
         }
 
         showToast("Shipping Document berhasil disimpan", "success");

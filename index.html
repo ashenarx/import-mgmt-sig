@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
@@ -56,6 +56,7 @@
             <strong>${selected.nomor_po} </strong> 
             <span style="color: var(--text-muted);"> | Shipment:</span>
             <strong> ${selected.shipment}</strong>
+            ${selected.deskripsi_barang ? `<span style="color: var(--text-muted);"> | ${selected.deskripsi_barang}</span>` : ""}
           </div>
           <button onclick="clearPO()">Ganti PO</button>`;
       } else {
@@ -63,7 +64,9 @@
         banner.innerHTML = `<em style="color: var(--text-muted);">Belum ada PO dipilih. Silakan pilih atau tambah PO melalui Master PO.</em>`;
       }
 
-      const qs = selected ? `?po=${encodeURIComponent(selected.nomor_po)}&shipment=${selected.shipment}` : "";
+      const qs = selected
+        ? `?master_id=${selected.id || ""}&po=${encodeURIComponent(selected.nomor_po)}&shipment=${selected.shipment}`
+        : "";
 
       document.getElementById("module-grid").innerHTML = modules.map(m => {
         const active = m.alwaysActive || selected;

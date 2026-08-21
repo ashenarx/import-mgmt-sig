@@ -36,21 +36,26 @@ function setSubmitting(form, isSubmitting) {
 // ─── PO context from URL ─────────────────────────────────────────────────────
 
 const params   = new URLSearchParams(window.location.search);
+const masterId = params.get("master_id");
 const nomorPO  = params.get("po");
 const shipment = params.get("shipment");
 
 function poFilter() {
+  if (masterId) {
+    return `master_id=eq.${masterId}`;
+  }
   return `nomor_po=eq.${encodeURIComponent(nomorPO)}&shipment=eq.${shipment}`;
 }
 
 async function loadContext() {
   const ctx = document.getElementById("po-context");
-  if (!nomorPO || !shipment) {
+  if (!masterId && (!nomorPO || !shipment)) {
     ctx.innerHTML = `<em>PO tidak ditemukan di URL. Kembali ke Home dan pilih PO terlebih dahulu.</em>`;
     return;
   }
   try {
-    const master = await sbGet("master_po_data", `?${poFilter()}&select=*`);
+    const filter = masterId ? `?id=eq.${masterId}&select=*` : `?${poFilter()}&select=*`;
+    const master = await sbGet("master_po_data", filter);
     if (master.length === 0) {
       ctx.innerHTML = `<em>Data master PO tidak ditemukan.</em>`;
       return;
@@ -58,10 +63,11 @@ async function loadContext() {
     const po = master[0];
     ctx.innerHTML = `
       <div>
-        <span style="color: var(--text-secondary);">PO:</span> <strong>${po.nomor_po}</strong>
+        <span style="color: var(--text-secondary);">PO:</span> <strong>${escapeHtml(po.nomor_po)}</strong>
         <span style="color: var(--text-muted);"> | Shipment:</span> <strong>${po.shipment}</strong>
-        <span style="color: var(--text-muted);"> | Plant:</span> ${po.plant ?? "-"}
-        <span style="color: var(--text-muted);"> | Vendor:</span> ${po.vendor ?? "-"}
+        <span style="color: var(--text-muted);"> | Plant:</span> ${escapeHtml(po.plant ?? "-")}
+        <span style="color: var(--text-muted);"> | Vendor:</span> ${escapeHtml(po.vendor ?? "-")}
+        ${po.deskripsi_barang ? `<span style="color: var(--text-muted);"> | Barang:</span> ${escapeHtml(po.deskripsi_barang)}` : ""}
       </div>`;
   } catch (err) {
     ctx.innerHTML = `<em>Gagal memuat data: ${err.message}</em>`;

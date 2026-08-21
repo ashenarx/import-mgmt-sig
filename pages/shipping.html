@@ -112,6 +112,7 @@
         ETD
         <input type="date" id="etd">
       </label>
+
       <label>
         Shipper
         <input type="text" id="shipper">
@@ -233,7 +234,6 @@
           getSupabaseErrorMessage(err, "Gagal menyimpan: " + err.message),
           "error"
         );
-      }
       } finally {
         setSubmitting(e.target, false);
       }

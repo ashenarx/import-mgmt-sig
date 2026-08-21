@@ -85,8 +85,6 @@
       "bast_no", "deskripsi_barang", "nilai_barang", "curr", "ket_bast_tambahan"
     ];
 
-
-
     async function loadBast() {
       try {
         const data = await sbGet("proses_bast", `?${poFilter()}&select=*`);
@@ -119,7 +117,6 @@
         showToast("BAST berhasil disimpan", "success");
       } catch (err) {
         showToast(getSupabaseErrorMessage(err, "Gagal menyimpan: " + err.message), "error");
-      }
       } finally {
         setSubmitting(e.target, false);
       }

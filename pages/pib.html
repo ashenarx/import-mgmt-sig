@@ -17,97 +17,97 @@
 
     <form id="pib-form" class="grid-form">
       <label>
-        Tanggal Permintaan Draft PIB 
+        Tanggal Permintaan Draft PIB
         <input type="date" id="permintaan_draft_pib">
       </label>
 
       <label>
-        Tanggal Terima Draft PIB 
+        Tanggal Terima Draft PIB
         <input type="date" id="terima_draft_pib">
       </label>
 
       <label>
-        Actual Time Arrived (ATA) 
+        Actual Time Arrived (ATA)
         <input type="date" id="ata">
       </label>
 
       <label>
-        Tanggal Confirm Draft PIB 
+        Tanggal Confirm Draft PIB
         <input type="date" id="confirm_draft_pib">
       </label>
 
       <label>
-        Tanggal PPJK Create Billing PIB 
+        Tanggal PPJK Create Billing PIB
         <input type="date" id="ppjk_create_billing_pib">
       </label>
 
       <label>
-        Tanggal BC 1.1 Release 
+        Tanggal BC 1.1 Release
         <input type="date" id="bc_11_release">
       </label>
 
       <label>
-        No. AJU PIB 
+        No. AJU PIB
         <input type="text" id="no_aju_pib">
       </label>
 
       <label>
-        No. Pendaftaran (NOPEN) 
+        No. Pendaftaran (NOPEN)
         <input type="text" id="nopen">
       </label>
 
       <label>
-        HS Code 
+        HS Code
         <input type="text" id="hs_code">
       </label>
 
       <label>
-        No. SPPB 
+        No. SPPB
         <input type="text" id="no_sppb">
       </label>
 
       <label>
-        SPPB Date 
+        SPPB Date
         <input type="date" id="sppb_date">
       </label>
 
       <label>
-        Tanggal Create PP PIB 
+        Tanggal Create PP PIB
         <input type="date" id="create_pp_pib">
       </label>
 
       <label>
-        Tanggal Approval PP PIB 
+        Tanggal Approval PP PIB
         <input type="date" id="approval_pp_pib">
       </label>
 
       <label>
-        Tanggal Kirim PP PIB 
+        Tanggal Kirim PP PIB
         <input type="date" id="kirim_pp_pib">
       </label>
 
       <label>
-        MIR7 PP PIB 
+        MIR7 PP PIB
         <input type="text" id="mir7_pp_pib">
       </label>
 
       <label>
-        No. PP PIB 
+        No. PP PIB
         <input type="text" id="no_pp_pib">
       </label>
 
       <label>
-        Nilai PP PIB 
+        Nilai PP PIB
         <input type="number" step="0.01" min="0" id="nilai_pp_pib">
       </label>
 
       <label>
-        Nilai Pabean 
+        Nilai Pabean
         <input type="number" step="0.01" min="0" id="nilai_pabean">
       </label>
 
       <label>
-        Nilai Bea Masuk 
+        Nilai Bea Masuk
         <input type="number" step="0.01" min="0" id="nilai_bea_masuk">
       </label>
 
@@ -217,7 +217,6 @@
         showToast("Proses PIB berhasil disimpan", "success");
       } catch (err) {
         showToast(getSupabaseErrorMessage(err, "Gagal menyimpan: " + err.message), "error");
-      }
       } finally {
         setSubmitting(e.target, false);
       }

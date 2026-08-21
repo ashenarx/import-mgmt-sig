@@ -1,3 +1,38 @@
+// ─── Utilities ───────────────────────────────────────────────────────────────
+
+/**
+ * Escape a value for safe insertion into HTML text content.
+ * Prevents XSS when building innerHTML strings from user/DB data.
+ */
+function escapeHtml(str) {
+  return String(str ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+/**
+ * Disable/re-enable a form's submit button and swap its label
+ * to give users clear feedback during async saves.
+ * Usage:
+ *   setSubmitting(formEl, true);
+ *   try { await save(); } finally { setSubmitting(formEl, false); }
+ */
+function setSubmitting(form, isSubmitting) {
+  const btn = form.querySelector('button[type="submit"]');
+  if (!btn) return;
+  if (isSubmitting) {
+    btn.dataset.originalText = btn.textContent;
+    btn.textContent = "Menyimpan...";
+    btn.disabled = true;
+  } else {
+    btn.textContent = btn.dataset.originalText ?? btn.textContent;
+    btn.disabled = false;
+  }
+}
+
 // ─── PO context from URL ─────────────────────────────────────────────────────
 
 const params   = new URLSearchParams(window.location.search);

@@ -1,6 +1,8 @@
-<html>
+<!DOCTYPE html>
+<html lang="id">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pre-Import Review - Import Management SIG</title>
   <link rel="preload" href="../assets/images/app-page.avif" as="image">
   <link rel="stylesheet" href="../assets/css/style.css">
@@ -80,7 +82,7 @@
           <option value="TIDAK">TIDAK</option>
         </select>
       </label>
-      
+
       <label>
         Nama Lampiran
         <input type="text" id="nama_lampiran">
@@ -125,6 +127,7 @@
       fields.forEach(f => {
         data[f] = document.getElementById(f).value || null;
       });
+      setSubmitting(e.target, true);
       try {
         if (preimportExists) {
           await sbUpdate("pre_po_impor", data, poFilter());
@@ -135,6 +138,8 @@
         showToast("PreImport review berhasil disimpan", "success");
       } catch (err) {
         showToast("Gagal menyimpan: " + err.message, "error");
+      } finally {
+        setSubmitting(e.target, false);
       }
     });
 

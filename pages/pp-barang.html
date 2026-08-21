@@ -1,6 +1,8 @@
-<html>
+﻿<!DOCTYPE html>
+<html lang="id">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PP Barang - Import Management SIG</title>
   <link rel="preload" href="../assets/images/app-page.avif" as="image">
   <link rel="stylesheet" href="../assets/css/style.css">
@@ -159,6 +161,7 @@
 
     document.getElementById("ppbrg-form").addEventListener("submit", async (e) => {
       e.preventDefault();
+      setSubmitting(e.target, true);
       const data = { nomor_po: nomorPO, shipment: parseInt(shipment) };
       fields.forEach(f => {
         data[f] = document.getElementById(f).value || null;
@@ -173,6 +176,8 @@
         showToast("PP Barang berhasil disimpan", "success");
       } catch (err) {
         showToast(getSupabaseErrorMessage(err, "Gagal menyimpan: " + err.message), "error");
+      } finally {
+        setSubmitting(e.target, false);
       }
     });
 

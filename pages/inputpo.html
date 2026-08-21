@@ -1,6 +1,8 @@
-<html>
+<!DOCTYPE html>
+<html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Input PO - Import Management SIG</title>
     <link rel="preload" href="../assets/images/app-page.avif" as="image">
     <link rel="stylesheet" href="../assets/css/style.css">
@@ -46,7 +48,7 @@
             <input type="date" id="lsd_date">
         </label>
         <label>
-            Free Time Demurrage & Detention (hari)
+            Free Time Demurrage &amp; Detention (hari)
             <input type="number" id="free_time_dd" min="0" step="1">
         </label>
 
@@ -135,12 +137,13 @@
           fields.forEach(f => {
             data[f] = document.getElementById(f).value || null;
           });
-          // Parse numeric fields explicitly
-          if (data.free_time_dd)       data.free_time_dd       = parseInt(data.free_time_dd);
-          if (data.nilai_po)           data.nilai_po           = parseFloat(data.nilai_po);
-          if (data.qty_order)          data.qty_order          = parseFloat(data.qty_order);
-          if (data.qty_delivered)      data.qty_delivered      = parseFloat(data.qty_delivered);
-          if (data.still_to_be_deliver) data.still_to_be_deliver = parseFloat(data.still_to_be_deliver);
+          // Use !== null so that a value of "0" is correctly parsed as 0, not dropped
+          if (data.free_time_dd !== null)        data.free_time_dd        = parseInt(data.free_time_dd);
+          if (data.nilai_po !== null)             data.nilai_po             = parseFloat(data.nilai_po);
+          if (data.qty_order !== null)            data.qty_order            = parseFloat(data.qty_order);
+          if (data.qty_delivered !== null)        data.qty_delivered        = parseFloat(data.qty_delivered);
+          if (data.still_to_be_deliver !== null)  data.still_to_be_deliver  = parseFloat(data.still_to_be_deliver);
+          setSubmitting(e.target, true);
           try {
             if (inputPOExists) {
               await sbUpdate("input_po", data, poFilter());
@@ -151,6 +154,8 @@
             showToast("Input PO berhasil disimpan", "success");
           } catch (err) {
             showToast("Gagal menyimpan: " + err.message, "error");
+          } finally {
+            setSubmitting(e.target, false);
           }
         });
 

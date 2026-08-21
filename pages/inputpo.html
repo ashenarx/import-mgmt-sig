@@ -102,104 +102,56 @@
 
     <script src="../assets/js/config.js"></script>
     <script src="../assets/js/supabase-client.js"></script>
+    <script src="../assets/js/page-utils.js"></script>
     <script>
-        const params = new URLSearchParams(window.location.search);
-        const nomorPO = params.get("po");
-        const shipment = params.get("shipment");
         let inputPOExists = false;
 
-        function poFilter() {
-        return `nomor_po=eq.${encodeURIComponent(nomorPO)}&shipment=eq.${shipment}`;
-        }
-
-        async function loadContext() {
-        const ctx = document.getElementById("po-context");
-        if (!nomorPO || !shipment) {
-            ctx.innerHTML = `<em>PO tidak ditemukan di URL. Kembali ke Home dan pilih PO terlebih dahulu.</em>`;
-            return;
-        }
-        try {
-            const master = await sbGet("master_po_data", `?${poFilter()}&select=*`);
-            if (master.length === 0) {
-            ctx.innerHTML = `<em>Data master PO tidak ditemukan.</em>`;
-            return;
-            }
-            const po = master[0];
-            ctx.innerHTML = `
-            <div>
-                <span style="color: var(--text-secondary);">PO:</span> <strong>${po.nomor_po}</strong>
-                <span style="color: var(--text-muted);"> | Shipment:</span> <strong>${po.shipment}</strong>
-                <span style="color: var(--text-muted);"> | Plant:</span> ${po.plant ?? "-"}
-                <span style="color: var(--text-muted);"> | Vendor:</span> ${po.vendor ?? "-"}
-            </div>`;
-        } catch (err) {
-            ctx.innerHTML = `<em>Gagal memuat data: ${err.message}</em>`;
-        }
-        }
+        const fields = [
+          "doc_date", "delivery_date", "deskripsi", "jenis_barang",
+          "incoterm", "jenis_pembayaran", "lsd_date", "free_time_dd",
+          "nilai_po", "currency", "dthc_included", "satuan_order",
+          "qty_order", "qty_delivered", "still_to_be_deliver",
+          "status_po", "ket_tambahan"
+        ];
 
         async function loadInputPO() {
-        try {
+          try {
             const data = await sbGet("input_po", `?${poFilter()}&select=*`);
             if (data.length > 0) {
-            inputPOExists = true;
-            const p = data[0];
-            document.getElementById("doc_date").value = p.doc_date || "";
-            document.getElementById("delivery_date").value = p.delivery_date || "";
-            document.getElementById("deskripsi").value = p.deskripsi || "";
-            document.getElementById("jenis_barang").value = p.jenis_barang || "";
-            document.getElementById("incoterm").value = p.incoterm || "";
-            document.getElementById("jenis_pembayaran").value = p.jenis_pembayaran || "";
-            document.getElementById("lsd_date").value = p.lsd_date || "";
-            document.getElementById("free_time_dd").value = p.free_time_dd ?? "";
-            document.getElementById("nilai_po").value = p.nilai_po ?? "";
-            document.getElementById("currency").value = p.currency || "";
-            document.getElementById("dthc_included").value = p.dthc_included || "";
-            document.getElementById("satuan_order").value = p.satuan_order || "";
-            document.getElementById("qty_order").value = p.qty_order ?? "";
-            document.getElementById("qty_delivered").value = p.qty_delivered ?? "";
-            document.getElementById("still_to_be_deliver").value = p.still_to_be_deliver ?? "";
-            document.getElementById("status_po").value = p.status_po || "";
-            document.getElementById("ket_tambahan").value = p.ket_tambahan || "";
+              inputPOExists = true;
+              const p = data[0];
+              fields.forEach(f => {
+                document.getElementById(f).value = p[f] ?? "";
+              });
             }
-        } catch (err) {
+          } catch (err) {
             showToast("Gagal memuat Input PO: " + err.message, "error");
-        }
+          }
         }
 
         document.getElementById("inputpo-form").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const data = {
-            nomor_po: nomorPO,
-            shipment: parseInt(shipment),
-            doc_date: document.getElementById("doc_date").value || null,
-            delivery_date: document.getElementById("delivery_date").value || null,
-            deskripsi: document.getElementById("deskripsi").value || null,
-            jenis_barang: document.getElementById("jenis_barang").value || null,
-            incoterm: document.getElementById("incoterm").value || null,
-            jenis_pembayaran: document.getElementById("jenis_pembayaran").value || null,
-            lsd_date: document.getElementById("lsd_date").value || null,
-            free_time_dd: document.getElementById("free_time_dd").value ? parseInt(document.getElementById("free_time_dd").value) : null,
-            nilai_po: document.getElementById("nilai_po").value ? parseFloat(document.getElementById("nilai_po").value) : null,
-            currency: document.getElementById("currency").value || null,
-            dthc_included: document.getElementById("dthc_included").value || null,
-            satuan_order: document.getElementById("satuan_order").value || null,
-            qty_order: document.getElementById("qty_order").value ? parseFloat(document.getElementById("qty_order").value) : null,
-            qty_delivered: document.getElementById("qty_delivered").value ? parseFloat(document.getElementById("qty_delivered").value) : null,
-            still_to_be_deliver: document.getElementById("still_to_be_deliver").value ? parseFloat(document.getElementById("still_to_be_deliver").value) : null,
-            status_po: document.getElementById("status_po").value || null,
-            ket_tambahan: document.getElementById("ket_tambahan").value || null,
-        };
-        try {
+          e.preventDefault();
+          const data = { nomor_po: nomorPO, shipment: parseInt(shipment) };
+          fields.forEach(f => {
+            data[f] = document.getElementById(f).value || null;
+          });
+          // Parse numeric fields explicitly
+          if (data.free_time_dd)       data.free_time_dd       = parseInt(data.free_time_dd);
+          if (data.nilai_po)           data.nilai_po           = parseFloat(data.nilai_po);
+          if (data.qty_order)          data.qty_order          = parseFloat(data.qty_order);
+          if (data.qty_delivered)      data.qty_delivered      = parseFloat(data.qty_delivered);
+          if (data.still_to_be_deliver) data.still_to_be_deliver = parseFloat(data.still_to_be_deliver);
+          try {
             if (inputPOExists) {
-            await sbUpdate("input_po", data, poFilter());
+              await sbUpdate("input_po", data, poFilter());
             } else {
-            await sbInsert("input_po", data);
-            inputPOExists = true;
+              await sbInsert("input_po", data);
+              inputPOExists = true;
             }
             showToast("Input PO berhasil disimpan", "success");
-        } catch (err) {
+          } catch (err) {
             showToast("Gagal menyimpan: " + err.message, "error");
-        }
+          }
         });
 
         loadContext();

@@ -75,6 +75,7 @@
 
   <script src="../assets/js/config.js"></script>
   <script src="../assets/js/supabase-client.js"></script>
+  <script src="../assets/js/page-utils.js"></script>
   <script>
         let allPOs = [];
     let isEditMode = false;
@@ -189,9 +190,6 @@
       renderTable(filtered);
     });
 
-    document.getElementById("shipment").addEventListener("input", (e) => {
-      if (e.target.value < 0) e.target.value = 0;
-    });
 
     async function deletePO(nomor_po, shipment) {
       if (!confirm(`Yakin ingin menghapus PO ${nomor_po} (Shipment ${shipment})?`)) return;

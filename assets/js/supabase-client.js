@@ -44,11 +44,7 @@ function getSupabaseErrorMessage(err, fallback) {
 async function sbGet(table, query = "") {
   const res = await fetch(
     `${SUPABASE_URL}/rest/v1/${table}${query}`,
-    {
-      headers: {
-        "apikey": SUPABASE_ANON_KEY,
-      },
-    }
+    { headers: supabaseHeaders() }
   );
   return handleSupabaseResponse(res, "GET", table);
 }
@@ -97,10 +93,7 @@ async function sbDelete(table, filter) {
       headers: supabaseHeaders(),
     }
   );
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`DELETE ${table} failed: ${res.status} ${text}`);
-  }
+  await handleSupabaseResponse(res, "DELETE", table);
   return true;
 }
 
@@ -140,18 +133,3 @@ function showToast(message, type = "error") {
     setTimeout(() => toast.remove(), 300);
   }, 3000);
 }
-
-// Toggle placeholder visibility for input fields
-document.querySelectorAll('input[type="date"]').forEach(input => {
-  const update = () => input.classList.toggle("has-value", !!input.value);
-  input.addEventListener("input", update);
-  input.addEventListener("change", update);
-  update();
-});
-
-// Minimum 0 for number inputs
-document.querySelectorAll("input[type='number']").forEach(input => {
-  input.addEventListener("input", (e) => {
-    if (e.target.value < 0) e.target.value = 0;
-  });
-});

@@ -92,40 +92,17 @@
 
   <script src="../assets/js/config.js"></script>
   <script src="../assets/js/supabase-client.js"></script>
+  <script src="../assets/js/page-utils.js"></script>
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const nomorPO = params.get("po");
-    const shipment = params.get("shipment");
     let preimportExists = false;
 
-    function poFilter() {
-      return `nomor_po=eq.${encodeURIComponent(nomorPO)}&shipment=eq.${shipment}`;
-    }
-
-    async function loadContext() {
-      const ctx = document.getElementById("po-context");
-      if (!nomorPO || !shipment) {
-        ctx.innerHTML = `<em>PO tidak ditemukan di URL. Kembali ke Home dan pilih PO terlebih dahulu.</em>`;
-        return;
-      }
-      try {
-        const master = await sbGet("master_po_data", `?${poFilter()}&select=*`);
-        if (master.length === 0) {
-          ctx.innerHTML = `<em>Data master PO tidak ditemukan.</em>`;
-          return;
-        }
-        const po = master[0];
-        ctx.innerHTML = `
-          <div>
-            <span style="color: var(--text-secondary);">PO:</span> <strong>${po.nomor_po}</strong>
-            <span style="color: var(--text-muted);"> | Shipment:</span> <strong>${po.shipment}</strong>
-            <span style="color: var(--text-muted);"> | Plant:</span> ${po.plant ?? "-"}
-            <span style="color: var(--text-muted);"> | Vendor:</span> ${po.vendor ?? "-"}
-          </div>`;
-      } catch (err) {
-        ctx.innerHTML = `<em>Gagal memuat data: ${err.message}</em>`;
-      }
-    }
+    const fields = [
+      "review_draft_op", "review_draft_op_keterangan",
+      "cek_lartas", "cek_lartas_keterangan",
+      "cek_perijinan_impor", "cek_perijinan_impor_keterangan",
+      "kirim_lc_guidance", "kirim_lc_guidance_keterangan",
+      "status", "lartas", "kuota_pi", "nama_lampiran"
+    ];
 
     async function loadPreImport() {
       try {
@@ -133,18 +110,9 @@
         if (data.length > 0) {
           preimportExists = true;
           const p = data[0];
-          document.getElementById("review_draft_op").value = p.review_draft_op || "";
-          document.getElementById("review_draft_op_keterangan").value = p.review_draft_op_keterangan || "";
-          document.getElementById("cek_lartas").value = p.cek_lartas || "";
-          document.getElementById("cek_lartas_keterangan").value = p.cek_lartas_keterangan || "";
-          document.getElementById("cek_perijinan_impor").value = p.cek_perijinan_impor || "";
-          document.getElementById("cek_perijinan_impor_keterangan").value = p.cek_perijinan_impor_keterangan || "";
-          document.getElementById("kirim_lc_guidance").value = p.kirim_lc_guidance || "";
-          document.getElementById("kirim_lc_guidance_keterangan").value = p.kirim_lc_guidance_keterangan || "";
-          document.getElementById("status").value = p.status || "";
-          document.getElementById("lartas").value = p.lartas || "";
-          document.getElementById("kuota_pi").value = p.kuota_pi || "";
-          document.getElementById("nama_lampiran").value = p.nama_lampiran || "";
+          fields.forEach(f => {
+            document.getElementById(f).value = p[f] ?? "";
+          });
         }
       } catch (err) {
         showToast("Gagal memuat PreImport review: " + err.message, "error");
@@ -153,22 +121,10 @@
 
     document.getElementById("preimport-form").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const data = {
-        nomor_po: nomorPO,
-        shipment: parseInt(shipment),
-        review_draft_op: document.getElementById("review_draft_op").value || null,
-        review_draft_op_keterangan: document.getElementById("review_draft_op_keterangan").value || null,
-        cek_lartas: document.getElementById("cek_lartas").value || null,
-        cek_lartas_keterangan: document.getElementById("cek_lartas_keterangan").value || null,
-        cek_perijinan_impor: document.getElementById("cek_perijinan_impor").value || null,
-        cek_perijinan_impor_keterangan: document.getElementById("cek_perijinan_impor_keterangan").value || null,
-        kirim_lc_guidance: document.getElementById("kirim_lc_guidance").value || null,
-        kirim_lc_guidance_keterangan: document.getElementById("kirim_lc_guidance_keterangan").value || null,
-        status: document.getElementById("status").value || null,
-        lartas: document.getElementById("lartas").value || null,
-        kuota_pi: document.getElementById("kuota_pi").value || null,
-        nama_lampiran: document.getElementById("nama_lampiran").value || null,
-      };
+      const data = { nomor_po: nomorPO, shipment: parseInt(shipment) };
+      fields.forEach(f => {
+        data[f] = document.getElementById(f).value || null;
+      });
       try {
         if (preimportExists) {
           await sbUpdate("pre_po_impor", data, poFilter());

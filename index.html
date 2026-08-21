@@ -19,12 +19,18 @@
       </button>
     </a>
     <div id="module-grid" class="module-grid"></div>
-    <div class="app-watermark">v1.0 | Athaya Shata</div>
+    <div class="app-watermark">
+      v1.0 | Athaya Shata 
+      <a href="#" onclick="event.preventDefault(); sbLogout();" style="pointer-events: auto; margin-left: 1rem; color: var(--text-secondary); font-size: 0.9rem; text-decoration: none;">Keluar (Logout)</a>
+    </div>
   </div>
 
   <script src="assets/js/config.js"></script>
   <script src="assets/js/supabase-client.js"></script>
   <script>
+    if (!sbGetSession()) {
+      window.location.href = "pages/login.html";
+    }
     const modules = [
       { name: "Master PO", file: "pages/master-po.html", alwaysActive: true },
       { name: "Pre-Import", file: "pages/preimport.html" },

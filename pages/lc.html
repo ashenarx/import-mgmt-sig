@@ -108,6 +108,14 @@
         <textarea id="keterangan_tiap_proses_lc" rows="1"></textarea>
       </label>
 
+      
+      <label class="grid-span-full">
+        Lampiran Dokumen
+        <div style="display:flex; gap: 8px; align-items: center;">
+          <input type="file" id="lampiran_file" style="flex: 1;">
+          <div id="lampiran_link"></div>
+        </div>
+      </label>
       <button type="submit" class="grid-span-full btn-primary">Simpan Proses L/C</button>
     </form>
   </div>
@@ -134,8 +142,11 @@
           recordId = data[0].id;
           const p = data[0];
           fields.forEach(f => {
-            document.getElementById(f).value = p[f] ?? "";
+            if(document.getElementById(f)) document.getElementById(f).value = p[f] ?? "";
           });
+          if (p.lampiran_url) {
+            document.getElementById("lampiran_link").innerHTML = `<a href="${escapeHtml(p.lampiran_url)}" target="_blank" style="color:var(--success); font-weight:500;">Lihat ${escapeHtml(p.nama_lampiran || 'Lampiran')}</a>`;
+          }
         }
       } catch (err) {
         showToast("Gagal memuat Proses L/C: " + err.message, "error");
@@ -153,6 +164,23 @@
       fields.forEach(f => {
         data[f] = document.getElementById(f).value || null;
       });
+      
+      const fileInput = document.getElementById("lampiran_file");
+      if (fileInput && fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const ext = file.name.split('.').pop();
+        const uniqueName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
+        const filePath = `${masterId || nomorPO + '-' + shipment}/${uniqueName}`;
+        try {
+          await sbUploadFile("attachments", filePath, file);
+          data.lampiran_url = sbGetPublicUrl("attachments", filePath);
+          data.nama_lampiran = file.name;
+        } catch(err) {
+          showToast("Gagal upload lampiran: " + err.message, "error");
+          return;
+        }
+      }
+
       try {
         if (recordId) {
           await sbUpdate("proses_lc", data, `id=eq.${recordId}`);

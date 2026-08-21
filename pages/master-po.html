@@ -78,6 +78,13 @@
             <input type="text" id="vendor">
           </label>
 
+      <label class="grid-span-full">
+        Lampiran Dokumen
+        <div style="display:flex; gap: 8px; align-items: center;">
+          <input type="file" id="lampiran_file" style="flex: 1;">
+          <div id="lampiran_link"></div>
+        </div>
+      </label>
           <button type="submit" class="grid-span-full btn-primary" style="margin-top: var(--space-lg);">Tambah &amp;
             Pilih PO Ini</button>
         </form>
@@ -237,6 +244,7 @@
         document.getElementById("shipment").value = po.shipment;
         document.getElementById("plant").value = po.plant || "";
         document.getElementById("vendor").value = po.vendor || "";
+        if(po.lampiran_url) { document.getElementById("lampiran_link").innerHTML = `<a href="${escapeHtml(po.lampiran_url)}" target="_blank" style="color:var(--success); font-weight:500;">Lihat ${escapeHtml(po.nama_lampiran || 'Lampiran')}</a>`; } else { document.getElementById("lampiran_link").innerHTML = ""; }
         document.querySelector("#add-po-form h3").innerText = "Edit PO";
         document.querySelector("#add-po-form button[type='submit']").innerText = "Update Data PO";
       }
@@ -250,6 +258,23 @@
           vendor: document.getElementById("vendor").value || null,
         };
         setSubmitting(e.target, true);
+        
+      const fileInput = document.getElementById("lampiran_file");
+      if (fileInput && fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const ext = file.name.split('.').pop();
+        const uniqueName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
+        const filePath = `${masterId || nomorPO + '-' + shipment}/${uniqueName}`;
+        try {
+          await sbUploadFile("attachments", filePath, file);
+          formData.lampiran_url = sbGetPublicUrl("attachments", filePath);
+          formData.nama_lampiran = file.name;
+        } catch(err) {
+          showToast("Gagal upload lampiran: " + err.message, "error");
+          return;
+        }
+      }
+
         try {
           if (isEditMode) {
             const filter = currentEditKeys.id

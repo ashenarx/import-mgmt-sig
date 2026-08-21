@@ -727,12 +727,15 @@ textarea::placeholder {
   color: var(--text-muted);
 }
 
-input[type="date"] {
+input[type="date"],
+input[type="file"] {
   color: var(--text-muted);
 }
 
 input[type="date"]:focus,
-input[type="date"].has-value {
+input[type="date"].has-value,
+input[type="file"]:focus,
+input[type="file"].has-value {
   color: var(--text);
 }
 
@@ -780,4 +783,28 @@ form select:has(option:checked[value=""]) {
   .two-column {
     grid-template-columns: 1fr;
   }
+}
+
+/* Style the standard file input button to match the app */
+input[type="file"]::file-selector-button {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  margin-right: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: var(--text-small);
+  font-weight: 500;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+input[type="file"]::file-selector-button:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-hover);
+}
+
+input[type="file"] {
+  padding: 4px; /* Slight override for file input padding */
 }

@@ -70,8 +70,8 @@ async function loadContext() {
   }
 }
 
-// Add or remove "has-value" class based on input value for date inputs
-document.querySelectorAll('input[type="date"]').forEach(input => {
+// Add or remove "has-value" class based on input value for date and file inputs
+document.querySelectorAll('input[type="date"], input[type="file"]').forEach(input => {
   const update = () => input.classList.toggle("has-value", !!input.value);
   input.addEventListener("input", update);
   input.addEventListener("change", update);

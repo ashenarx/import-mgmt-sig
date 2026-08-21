@@ -227,3 +227,23 @@ function showToast(message, type = "error") {
     setTimeout(() => toast.remove(), 300);
   }, 3000);
 }
+// Supabase Upload File
+async function sbUploadFile(bucket, filePath, file) {
+  const headers = supabaseHeaders();
+  headers["Content-Type"] = file.type || "application/octet-stream";
+  
+  const res = await sbFetch(
+    `${SUPABASE_URL}/storage/v1/object/${bucket}/${filePath}`,
+    {
+      method: "POST",
+      headers: headers,
+      body: file,
+    }
+  );
+  return handleSupabaseResponse(res, "UPLOAD", bucket);
+}
+
+// Get public URL
+function sbGetPublicUrl(bucket, filePath) {
+  return `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${filePath}`;
+}

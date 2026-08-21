@@ -59,6 +59,48 @@ function sbGetSession() {
   return token && user ? JSON.parse(user) : null;
 }
 
+// Refresh token
+async function sbRefreshToken() {
+  const refresh_token = localStorage.getItem("sb_refresh_token");
+  if (!refresh_token) return false;
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+      method: 'POST',
+      headers: {
+        "apikey": SUPABASE_ANON_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ refresh_token })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.access_token) {
+        localStorage.setItem("sb_access_token", data.access_token);
+        localStorage.setItem("sb_refresh_token", data.refresh_token);
+        localStorage.setItem("sb_user", JSON.stringify(data.user));
+        return true;
+      }
+    }
+  } catch (err) { }
+  return false;
+}
+
+async function sbFetch(url, options = {}) {
+  let res = await fetch(url, options);
+  if (res.status === 401) {
+    const refreshed = await sbRefreshToken();
+    if (refreshed) {
+      if (options.headers) {
+        options.headers = { ...options.headers, ...supabaseHeaders() };
+      }
+      res = await fetch(url, options);
+    } else {
+      sbLogout();
+    }
+  }
+  return res;
+}
+
 // Helper function to handle Supabase responses
 async function handleSupabaseResponse(res, operation, table) {
   const text = await res.text();
@@ -94,7 +136,7 @@ function getSupabaseErrorMessage(err, fallback) {
 
 // Supabase GET function
 async function sbGet(table, query = "") {
-  const res = await fetch(
+  const res = await sbFetch(
     `${SUPABASE_URL}/rest/v1/${table}${query}`,
     { headers: supabaseHeaders() }
   );
@@ -104,7 +146,7 @@ async function sbGet(table, query = "") {
 
 // Supabase Insert function
 async function sbInsert(table, data) {
-  const res = await fetch(
+  const res = await sbFetch(
     `${SUPABASE_URL}/rest/v1/${table}`,
     {
       method: "POST",
@@ -121,7 +163,7 @@ async function sbInsert(table, data) {
 
 // Supabase Update function
 async function sbUpdate(table, data, filter) {
-  const res = await fetch(
+  const res = await sbFetch(
     `${SUPABASE_URL}/rest/v1/${table}?${filter}`,
     {
       method: "PATCH",
@@ -138,7 +180,7 @@ async function sbUpdate(table, data, filter) {
 
 // Supabase Delete function
 async function sbDelete(table, filter) {
-  const res = await fetch(
+  const res = await sbFetch(
     `${SUPABASE_URL}/rest/v1/${table}?${filter}`,
     {
       method: "DELETE",
